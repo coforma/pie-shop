@@ -1,141 +1,314 @@
-# Tech Challenge Template
+# Pie Shop - Interview Assessment System
 
-A comprehensive GitHub repository template designed for technology challenges and projects. This template provides essential GitHub features and workflows to help teams collaborate effectively from day one.
+A language-agnostic specification for conducting technical interviews through code review of a realistic distributed system.
 
-## How to Use This Template
+## What Is This?
 
-### Option 1: Use GitHub's Template Feature (Recommended)
+The Pie Shop is a deliberately designed interview project featuring a fictional bakery that orchestrates pie orders through robot services:
 
-1. **Click "Use this template"** - Look for the green "Use this template" button at the top of this repository
-2. **Choose "Create a new repository"**
-3. **Configure your new repository:**
-   - Select the owner (your account or organization)
-   - Enter a repository name
-   - Choose visibility (public or private)
-   - Optionally include all branches (usually just main is sufficient)
-4. **Click "Create repository from template"**
+**Order Flow**: Customer orders pie → Robot picks fruit → Ingredients prepped → Robot bakes pie → Drone delivers
 
-### Option 2: Manual Setup
+The system is **intentionally incomplete** with realistic technical debt to create natural discussion points about:
+- Architecture patterns (state machines, service integration, distributed systems)
+- Code quality and testing
+- Security (authentication, secrets management, input validation)
+- Accessibility (WCAG 2.1 AA compliance)
+- Operations (observability, deployment, scaling)
 
-If you prefer to set up manually or need to customize the process:
-
-```bash
-# Clone this template
-git clone https://github.com/coforma/tech-challenge-template.git your-project-name
-
-# Navigate to the project
-cd your-project-name
-
-# Remove the original git history and start fresh
-rm -rf .git
-git init
-git add .
-git commit -m "Initial commit from tech-challenge-template"
-
-# Connect to your new remote repository
-git remote add origin https://github.com/yourusername/your-project-name.git
-git push -u origin main
-```
-
-## Features Included
-
-This template comes pre-configured with essential GitHub features to streamline your development workflow:
-
-### Issue Templates
-
-**Bug Report Template** (`.github/ISSUE_TEMPLATE/bug_report.md`)
-- Structured format for reporting bugs
-- Includes sections for current behavior, reproduction steps, and expected behavior
-- Helps maintain consistency in bug reporting
-
-**User Story Template** (`.github/ISSUE_TEMPLATE/user-story-template.md`)
-- Follows agile user story format: "As a [persona], I [want to], [so that]"
-- Includes Definition of Ready checklist
-- Contains acceptance criteria and task tracking
-- Links to Definition of Done for consistency
-
-**HCD (Human-Centered Design) Template** (`.github/ISSUE_TEMPLATE/hcd-template.md`)
-- Specialized for design and research deliverables
-- Includes HCD-specific acceptance criteria
-- Pre-labeled with 'hcd' tag for easy filtering
-- Contains documentation and deliverable tracking
-
-**Configuration** (`.github/ISSUE_TEMPLATE/config.yml`)
-- Disables blank issues to encourage use of structured templates
-- Ensures all issues follow established formats
-
-### LLM Configuration Guide
-
-**AGENTS.md** - Comprehensive guide for Large Language Models
-- Coforma company context, values, and technical approach
-- Professional communication standards (no emojis, government-appropriate tone)
-- Code quality guidelines emphasizing accessibility and security
-- Collaboration principles and workflow integration
-- Customizable section for project-specific requirements
-- Template for teams to add challenge-specific rules and constraints
-
-### Pull Request Template
-
-**Comprehensive PR Template** (`.github/PULL_REQUEST_TEMPLATE.md`)
-- Summary and context sections
-- Issue linking requirements
-- Change type categorization (bug fix, feature, documentation)
-- Testing instructions
-- Comprehensive checklist including:
-  - Code style and linting
-  - Self-review process
-  - Documentation updates
-  - Security considerations
-  - Test coverage requirements
-
-## Ideal Use Cases
-
-This template is perfect for:
-
-- **Technology challenges and coding assessments**
-- **Prototype projects requiring structured collaboration**
-- **Small to medium-sized development projects**
-- **Projects requiring human-centered design workflows**
-- **Teams that value structured issue tracking and PR processes**
-
-## Getting Started After Template Creation
-
-Once you've created your repository from this template:
-
-1. **Update this README** - Replace this content with your project-specific information
-2. **Customize AGENTS.md** - Update the fork-specific rules section in `AGENTS.md` with your project requirements, technology stack, evaluation criteria, and any challenge-specific guidelines for LLMs working with your repository
-3. **Customize issue templates** - Modify templates in `.github/ISSUE_TEMPLATE/` to match your project needs
-4. **Review PR template** - Adjust the pull request template checklist for your workflow
-5. **Add project-specific content** - Include your code, documentation, and other project files
-6. **Configure repository settings** - Set up branch protection, required reviews, etc.
+**Key Philosophy**: The code works but has realistic problems for candidates to identify and discuss during live code review.
 
 ## Repository Structure
 
+### Main Branch (Template - No Code)
 ```
-.
-├── README.md                          # This file
-├── AGENTS.md                          # LLM configuration and guidelines
-└── .github/
-    ├── PULL_REQUEST_TEMPLATE.md       # PR template
-    └── ISSUE_TEMPLATE/
-        ├── bug_report.md              # Bug report template
-        ├── config.yml                 # Issue template configuration
-        ├── hcd-template.md            # Human-centered design template
-        └── user-story-template.md     # User story template
+pie-shop/
+├── .specify/                           # Specification-Driven Development
+│   ├── memory/
+│   │   └── constitution.md            # Project principles and design philosophy
+│   ├── features/
+│   │   └── 001-pie-shop-orchestration.md  # Complete feature specification
+│   ├── IMPLEMENTATION_PROMPT.md        # Generate code in any language
+│   ├── INTERVIEW_GUIDE_SHARED_DRIVE_README.md  # Guide for interviewers
+│   ├── WORKFLOW_PROPOSAL.md           # Complete workflow documentation
+│   └── PROJECT_SUMMARY.md             # Overview and design decisions
+├── .github/                           # Issue and PR templates
+├── .gitignore                         # Prevents interview guides from being committed
+├── AGENTS.md                          # LLM configuration (Coforma standards)
+└── README.md                          # This file
 ```
+
+### Interview Branches (Generated Implementations)
+**Branch naming**: `interview/[language]-[role]-[level]`
+
+Examples:
+- `interview/python-backend-senior` 
+- `interview/nodejs-fullstack-mid`
+- `interview/csharp-backend-senior`
+
+```
+pie-shop/  (on interview/python-backend-senior)
+├── (all from main, plus:)
+├── src/                               # Language-specific implementation
+├── tests/                             # Mixed quality tests
+├── mocks/                             # Mock robot services
+├── ui/                                # UI with accessibility issues
+├── docker/                            # Docker setup
+├── docker-compose.yml                 # Works locally, has operational gaps
+└── README.md                          # Updated with setup instructions
+```
+
+**Note**: Interview guides (`INTERVIEW_GUIDE_PYTHON.md`, etc.) are **never committed**. They're stored in company shared drive only.
+
+## Quick Start - Running an Interview
+
+### For Interviewers: Setting Up a New Interview
+
+**Step 1: Generate Implementation for Language/Role** (30-45 min, one-time setup)
+
+1. Create interview branch:
+   ```bash
+   git checkout main
+   git pull
+   git checkout -b interview/[language]-[role]-[level]
+   # Example: interview/python-backend-senior
+   ```
+
+2. Copy the prompt from `.specify/IMPLEMENTATION_PROMPT.md` and paste it to the **modern-architect-engineer** agent
+
+3. Answer three questions:
+   - **Language/Framework?** → Python/FastAPI, Node.js/Express, Java/Spring Boot, Go/Gin, etc.
+   - **Role?** → Backend, Full Stack, DevOps, Security, Accessibility
+   - **Experience Level?** → Junior, Mid, Senior, Staff+
+
+4. The agent generates:
+   - ✅ Complete working code with intentional technical debt
+   - ✅ Docker Compose setup
+   - ✅ Mock robot services
+   - ✅ Tests (mixed quality)
+   - ✅ UI with accessibility violations
+   - ✅ **Interview guide with exact file paths and line numbers**
+
+5. **Commit implementation WITHOUT the interview guide:**
+   ```bash
+   git add src/ tests/ docker/ ui/ docker-compose.yml README.md
+   git commit -m "Add [Language] implementation for [Role] [Level] interviews"
+   git push -u origin interview/[language]-[role]-[level]
+   ```
+
+6. **Store interview guide privately:**
+   - Save `INTERVIEW_GUIDE_[LANGUAGE].md` to company shared drive
+   - Location: `[Company Drive]/Recruiting/Pie-Shop-Interview-Guides/`
+   - **DO NOT commit guide to GitHub**
+   - See `.specify/INTERVIEW_GUIDE_SHARED_DRIVE_README.md` for guide management
+
+**Step 2: Send Candidate the Branch** (1-2 days before interview)
+
+Email the candidate:
+```
+Hi [Candidate],
+
+For your upcoming interview on [DATE] at [TIME], please review this codebase:
+https://github.com/coforma/pie-shop/tree/interview/python-backend-senior
+
+Allow 1-2 hours to review. The code works but has intentional gaps for discussion.
+Come ready to discuss what you observe - strengths, weaknesses, and trade-offs.
+
+Looking forward to our discussion!
+```
+
+**Step 3: Prep Interview** (15 min before interview)
+
+1. Download interview guide from company shared drive
+2. Review Layer 2 checkpoints (guided tour)
+3. Note backup prompts in Layer 3
+4. Have code open in one screen, guide in another (private screen)
+
+**Step 4: Conduct Interview** (60 minutes)
+
+- **5 min - Orient**: "This is a pie shop system that orchestrates orders through robot services. Let me give you a quick tour..."
+- **15 min - Guided Tour**: Walk through 2-3 critical checkpoints from guide (state machine, service clients, security, etc.)
+- **30 min - Candidate Explores**: They navigate and share observations. Use backup prompts if they miss critical areas
+- **10 min - Wrap-up**: "What would you prioritize? What would you need before production?"
+
+**Step 5: Post-Interview** (15 min)
+
+1. Document assessment using scoring rubric from guide
+2. **Delete guide from local downloads** (security)
+3. Share feedback with team
+
+### What to Look For
+
+**Strong Candidates**:
+- ✅ Identify specific issues with examples
+- ✅ Discuss trade-offs ("Simple but won't scale because...")
+- ✅ Proactively mention security, accessibility, operations
+- ✅ Prioritize improvements logically
+- ✅ Balance pragmatism with quality
+
+**Red Flags**:
+- ❌ Can't identify issues without heavy prompting
+- ❌ Suggests complete rewrites without reason
+- ❌ Misses critical security/accessibility problems
+- ❌ Dogmatic about patterns without discussing trade-offs
+
+## Why This Works for Interviews
+
+✅ **Not Obviously Fake**: Realistic distributed system complexity  
+✅ **Approachable Domain**: Everyone understands ordering a pie  
+✅ **Multi-Dimensional**: Tests architecture, code, security, accessibility, operations  
+✅ **Language Agnostic**: Generate in any language  
+✅ **Time Efficient**: 1-hour interview, no take-home burden  
+✅ **50+ Discussion Points**: Rich conversation opportunities  
+✅ **Production-Like**: Real technical debt, not contrived problems
+
+## Intentional Issues Included
+
+### Security
+- No authentication/authorization
+- Hard-coded secrets
+- Incomplete input validation
+- No rate limiting
+
+### Observability
+- No distributed tracing
+- No circuit breakers
+- Basic retry logic (no exponential backoff)
+- Missing health checks
+
+### Accessibility (UI)
+- Missing form labels
+- Poor color contrast
+- No keyboard navigation
+- Improper ARIA usage
+- Status indicators using color only
+
+### Code Quality
+- Some functions too long
+- Hard-coded configuration values
+- Inconsistent error handling
+- Mixed test quality
+
+### Operations
+- No Kubernetes manifests
+- Missing container resource limits
+- No graceful shutdown
+- Outdated documentation
+
+## Philosophy: Specification-Driven Development
+
+This project follows **Specification-Driven Development (SDD)**:
+
+1. **Specifications as Source of Truth**: The spec defines WHAT, implementations define HOW
+2. **Language Agnostic**: One spec, many implementations
+3. **Executable Specifications**: Detailed enough to generate working code
+4. **Deliberately Incomplete**: Gaps create learning opportunities
+
+See `.specify/memory/constitution.md` for complete design philosophy.
+
+## Branch Strategy & Workflow
+
+### Main Branch
+- Contains only specifications and templates
+- No generated code or interview guides
+- Safe to be public
+- **Never merge interview branches to main**
+
+### Interview Branches
+- One branch per language/role/level combination
+- Contains generated implementation code
+- Shared directly with candidates via branch URL
+- **Never merged to main** (kept separate)
+- Can be regenerated if spec changes
+
+### Interview Guides
+- Generated alongside implementation
+- **Stored in company shared drive ONLY**
+- Never committed to any branch (blocked by `.gitignore`)
+- Downloaded by interviewers before each interview
+- Deleted after interview (security)
+
+See `.specify/WORKFLOW_PROPOSAL.md` for complete workflow details.
+
+## Documentation
+
+- **📋 Feature Spec**: `.specify/features/001-pie-shop-orchestration.md` - Complete requirements
+- **🏛️ Constitution**: `.specify/memory/constitution.md` - Design principles  
+- **🎯 Implementation Prompt**: `.specify/IMPLEMENTATION_PROMPT.md` - How to generate code
+- **📊 Project Summary**: `.specify/PROJECT_SUMMARY.md` - Overview and statistics
+- **🔒 Interview Guides**: Stored on company shared drive (not in repo) - See `.specify/INTERVIEW_GUIDE_SHARED_DRIVE_README.md`
+
+## Customization for Different Roles
+
+The generated interview guide includes markers:
+
+- `[CRITICAL]` - Must cover
+- `[ROLE: Backend]` - Relevant for backend engineers
+- `[ROLE: Full Stack]` - Relevant for full stack engineers
+- `[ROLE: DevOps]` - Relevant for SRE/DevOps
+- `[ROLE: Security]` - Relevant for security engineers
+- `[LEVEL: Senior+]` - For experienced candidates
+- `[TOPIC: Security]` - Organized by topic area
+
+## Interview Scoring
+
+### Junior (0-2 years)
+- Identifies obvious issues
+- Understands basic patterns
+- Asks good questions
+
+### Mid (2-5 years)
+- Identifies most security/accessibility issues
+- Discusses trade-offs
+- Shows production experience
+
+### Senior (5-8 years)
+- Systematic analysis across all areas
+- Provides alternatives with rationale
+- Discusses operational concerns
+
+### Staff+ (8+ years)
+- All of senior, plus:
+- Connects technical to business outcomes
+- Proposes migration strategies
+- Discusses organizational impacts
+
+## Assessment Dimensions
+
+This system evaluates:
+- ✅ Backend Architecture (state machines, service integration, distributed systems)
+- ✅ API Design (REST, versioning, error handling, contracts)
+- ✅ Code Quality (structure, testing, maintainability)
+- ✅ Security (auth, validation, secrets management)
+- ✅ Accessibility (WCAG 2.1 AA, Section 508, keyboard navigation)
+- ✅ Observability (logging, metrics, tracing, alerting)
+- ✅ Operations (deployment, scaling, reliability)
+- ✅ Product Thinking (requirements, edge cases, prioritization)
+
+## About Coforma
+
+This interview system aligns with Coforma's values:
+- **Ethics-first**: Accessibility and security are never optional
+- **Human-centered**: Consider end users in all technical decisions
+- **Public service**: Built for government work (Section 508 compliance)
+- **Partnerships**: Collaborative assessment, not interrogation
+
+See `AGENTS.md` for complete Coforma context and coding standards.
 
 ## Contributing
 
-This template is designed to be a starting point. Feel free to:
+To improve this interview system:
 
-- Fork and modify for your organization's needs
-- Submit issues or PRs to improve the template
-- Share feedback on how these templates work for your projects
+1. Identify gaps in assessment coverage
+2. Suggest additional intentional issues
+3. Propose new discussion scenarios
+4. Share calibration feedback
+
+See `.specify/memory/constitution.md` for amendment process.
 
 ## License
 
-This template is provided as-is for use by Coforma and collaborating organizations. Modify as needed for your projects.
+Provided for use by Coforma and partners. Modify as needed for your interview process.
 
 ---
 
-**Ready to start your project?** Click the "Use this template" button above to create your new repository!
+**Ready to interview?** Copy `.specify/IMPLEMENTATION_PROMPT.md` to the modern-architect-engineer agent to generate your first implementation! 🥧

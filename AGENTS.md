@@ -71,35 +71,94 @@ This repository template is designed for technology challenges and collaborative
 
 ## Project-Specific Customization
 
-### Fork-Specific Rules
-*This section should be customized by teams forking this template for specific tech challenges.*
+### Pie Shop Interview System - Repository Workflow
 
-<!-- BEGIN FORK-SPECIFIC RULES -->
-<!--
-Add your project-specific rules, requirements, and guidelines here.
-Examples might include:
+**This repository is an interview assessment tool, not a production application.**
 
-#### Technology Stack Requirements
-- Specific frameworks, languages, or tools required
-- Version requirements and compatibility constraints
-- Performance or scalability requirements
+#### Repository Structure
 
-#### Challenge-Specific Guidelines
-- Problem domain context and constraints
-- Evaluation criteria and success metrics
-- Timeline and milestone requirements
+**Main Branch:**
+- Contains specifications, templates, and instructions only
+- No implementation code
+- No interview guides
+- Safe to be public
 
-#### Team Collaboration Rules
-- Code review requirements
-- Testing standards specific to the challenge
-- Documentation requirements beyond the standard
+**Interview Branches:**
+- Branch naming: `interview/[language]-[role]-[level]`
+- Examples: `interview/python-backend-senior`, `interview/nodejs-fullstack-mid`
+- Contains generated implementation code with intentional technical debt
+- Shared directly with candidates via branch URL
+- **Never merged to main**
 
-#### Deployment and Infrastructure
-- Environment requirements
-- CI/CD pipeline expectations
-- Security or compliance requirements specific to the challenge
--->
-<!-- END FORK-SPECIFIC RULES -->
+**Interview Guides:**
+- Stored on company shared drive ONLY (never in repository)
+- Contain discussion points, expected answers, and scoring rubrics
+- Blocked by `.gitignore` (pattern: `INTERVIEW_GUIDE*.md`)
+
+#### Workflow for Agents
+
+When asked to work with this repository:
+
+1. **Check current branch:**
+   ```bash
+   git branch --show-current
+   ```
+
+2. **If on main branch:**
+   - You can update specifications (`.specify/features/`)
+   - You can update constitution (`.specify/memory/`)
+   - You can update workflow docs (`.specify/WORKFLOW.md`)
+   - **DO NOT** generate implementation code
+   - **DO NOT** commit interview guides
+
+3. **If on interview branch (interview/*):**
+   - You can modify implementation code
+   - You can update tests, mocks, UI
+   - You can regenerate code from specifications
+   - **DO NOT** commit files matching `INTERVIEW_GUIDE*.md`
+   - **NEVER** merge this branch to main
+
+4. **To generate new interview implementation:**
+   - Create new branch: `git checkout -b interview/[language]-[role]-[level]`
+   - Use prompt from `.specify/IMPLEMENTATION_PROMPT.md`
+   - Generate code with intentional technical debt
+   - Commit code only (never the generated interview guide)
+   - Guide should be saved to company shared drive
+
+5. **Security Rules:**
+   - Interview guides contain sensitive assessment materials
+   - `.gitignore` blocks `INTERVIEW_GUIDE*.md` patterns
+   - If user asks to commit a guide, remind them it should go to shared drive
+   - If you accidentally generate a guide in the repo, alert the user
+
+#### Interview Branch Lifecycle
+
+**Creation:**
+```bash
+git checkout main
+git checkout -b interview/python-backend-senior
+# Generate implementation
+git add src/ tests/ docker/ ui/ docker-compose.yml
+git commit -m "Add Python implementation for Senior Backend interviews"
+git push -u origin interview/python-backend-senior
+```
+
+**Sharing with Candidates:**
+- Send candidate the branch URL directly (public repo)
+- Candidates can clone/browse the specific branch
+- They see code with intentional issues but no interview guide
+
+**Maintenance:**
+- When specifications change, rebase interview branch from main
+- Regenerate implementation using updated spec
+- Force push to update branch
+
+**Never:**
+- Never merge interview branches to main
+- Never commit interview guides to any branch
+- Never share interview guide with candidates
+
+See `.specify/WORKFLOW.md` for complete workflow documentation.
 
 ### Common Challenge Patterns
 

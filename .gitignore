@@ -1,0 +1,52 @@
+# Interview Guides - NEVER COMMIT THESE
+# Guides contain discussion points, expected answers, and red flags
+# that candidates should not see in advance
+
+# Block the actual interview guides (generic and language-specific)
+INTERVIEW_GUIDE.md
+**/INTERVIEW_GUIDE.md
+INTERVIEW_GUIDE_[A-Z]*.md
+**/interview-guide*.md
+.interview-guides/
+interview-guides/
+
+# Allow management documentation (these are safe, for interviewers)
+!INTERVIEW_GUIDE_SHARED_DRIVE_README.md
+!INTERVIEW_GUIDE_MIGRATION_NOTICE.md
+
+# Language-specific interview artifacts (if generated in main by mistake)
+INTERVIEW_PYTHON.md
+INTERVIEW_NODEJS.md
+INTERVIEW_CSHARP.md
+INTERVIEW_GO.md
+INTERVIEW_JAVA.md
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
