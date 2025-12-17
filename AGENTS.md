@@ -43,6 +43,18 @@ This repository template is designed for technology challenges and collaborative
 - **Clear, concise language**: Use straightforward language that is accessible to diverse audiences
 - **Inclusive terminology**: Use inclusive language that reflects Coforma's commitment to diversity and accessibility
 - **Government-appropriate tone**: Remember that many projects serve government and public sector clients
+- **NO INTERVIEW HINTS IN CANDIDATE-FACING FILES**: 
+  - **CRITICAL**: Candidates see the code - it must look like a real production codebase
+  - README.md should be professional and helpful (not mention "intentional issues")
+  - Code comments should use normal developer patterns:
+    - ✅ Good: `// TODO: Add authentication middleware`
+    - ✅ Good: `// TODO: Implement circuit breaker pattern`
+    - ✅ Good: `// TODO: Move secrets to Key Vault`
+    - ❌ Bad: `// SECURITY ISSUE: No authentication!`
+    - ❌ Bad: `// intentional for interview`
+    - ❌ Bad: `// This has technical debt for discussion`
+  - Issues should be discovered through code review, not telegraphed
+  - Interview guides (which ARE gitignored) contain all the discussion points
 
 ### Code Quality Standards
 - **Accessibility first**: Ensure all code follows WCAG 2.2 guidelines and accessibility best practices

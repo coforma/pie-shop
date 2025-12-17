@@ -433,6 +433,13 @@ Organized by topic with backup prompts:
 6. **Interviewer Prep**: Guide should help interviewer prep in 15 minutes
 7. **Natural TODOs**: Comments should look like real developer TODOs, not interview plants
 8. **Balance**: Some code good (state machine), some bad (service clients), most in-between
+9. **NO INTERVIEW HINTS IN CANDIDATE-FACING FILES**: 
+   - README.md should be professional and straightforward (no "intentional issues" mentions)
+   - Code comments should use normal developer TODO comments (not "SECURITY ISSUE:" or "intentional for interview")
+   - Remove any hints like "Note: This has intentional technical debt"
+   - Make it look like a real production codebase a developer would create
+   - Issues should be discovered through code review, not telegraphed in comments
+10. **Interview Guide is Separate**: All discussion points, issue locations, and line numbers go in INTERVIEW_GUIDE_[LANGUAGE].md (which is gitignored)
 
 ## Deliverables:
 

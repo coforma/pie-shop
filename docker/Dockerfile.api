@@ -1,0 +1,34 @@
+# Build stage
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+
+# Copy solution and project files
+COPY PieShop.sln ./
+COPY src/PieShop.Api/PieShop.Api.csproj src/PieShop.Api/
+COPY src/PieShop.Core/PieShop.Core.csproj src/PieShop.Core/
+COPY src/PieShop.Infrastructure/PieShop.Infrastructure.csproj src/PieShop.Infrastructure/
+
+# Restore dependencies
+RUN dotnet restore
+
+# Copy everything else and build
+COPY src/ src/
+RUN dotnet build src/PieShop.Api/PieShop.Api.csproj -c Release -o /app/build
+
+# Publish stage
+FROM build AS publish
+RUN dotnet publish src/PieShop.Api/PieShop.Api.csproj -c Release -o /app/publish
+
+# Runtime stage
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
+
+# TODO: Add health check
+# HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+#   CMD curl -f http://localhost:5000/api/health || exit 1
+
+EXPOSE 5000
+ENV ASPNETCORE_URLS=http://+:5000
+
+ENTRYPOINT ["dotnet", "PieShop.Api.dll"]

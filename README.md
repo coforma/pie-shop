@@ -1,314 +1,313 @@
-# Pie Shop - Interview Assessment System
+# Pie Shop - Automated Bakery Order System
 
-A language-agnostic specification for conducting technical interviews through code review of a realistic distributed system.
+A distributed order orchestration system for an automated pie bakery that coordinates robot services for ingredient sourcing, baking, and delivery.
 
-## What Is This?
+## Overview
 
-The Pie Shop is a deliberately designed interview project featuring a fictional bakery that orchestrates pie orders through robot services:
+The Pie Shop system manages the complete lifecycle of pie orders from placement through delivery. It orchestrates three external robot services:
 
-**Order Flow**: Customer orders pie → Robot picks fruit → Ingredients prepped → Robot bakes pie → Drone delivers
+- **Fruit Picker**: Harvests fresh ingredients
+- **Baker**: Handles baking operations  
+- **Delivery**: Manages drone delivery
 
-The system is **intentionally incomplete** with realistic technical debt to create natural discussion points about:
-- Architecture patterns (state machines, service integration, distributed systems)
-- Code quality and testing
-- Security (authentication, secrets management, input validation)
-- Accessibility (WCAG 2.1 AA compliance)
-- Operations (observability, deployment, scaling)
+## Quick Start
 
-**Key Philosophy**: The code works but has realistic problems for candidates to identify and discuss during live code review.
+### Prerequisites
+- Docker Desktop
+- .NET 8.0 SDK (for local development)
+- Node.js 18+ (for UI development)
 
-## Repository Structure
+### Running with Docker Compose
 
-### Main Branch (Template - No Code)
+```bash
+# Start all services
+docker-compose up --build
+
+# Access the application
+# - Customer UI: http://localhost:3000
+# - Admin Dashboard: http://localhost:3000/admin
+# - API: http://localhost:5000
+# - API Documentation: http://localhost:5000/swagger
+```
+
+### Running Services Individually
+
+**API:**
+```bash
+cd src/PieShop.Api
+dotnet run
+```
+
+**React UI:**
+```bash
+cd ui
+npm install
+npm run dev
+```
+
+**Mock Services:**
+```bash
+cd mocks/FruitPickerMock && dotnet run  # Port 8081
+cd mocks/BakerMock && dotnet run        # Port 8082
+cd mocks/DeliveryMock && dotnet run     # Port 8083
+```
+
+## Architecture
+
+### Project Structure
+
 ```
 pie-shop/
-├── .specify/                           # Specification-Driven Development
-│   ├── memory/
-│   │   └── constitution.md            # Project principles and design philosophy
-│   ├── features/
-│   │   └── 001-pie-shop-orchestration.md  # Complete feature specification
-│   ├── IMPLEMENTATION_PROMPT.md        # Generate code in any language
-│   ├── INTERVIEW_GUIDE_SHARED_DRIVE_README.md  # Guide for interviewers
-│   ├── WORKFLOW_PROPOSAL.md           # Complete workflow documentation
-│   └── PROJECT_SUMMARY.md             # Overview and design decisions
-├── .github/                           # Issue and PR templates
-├── .gitignore                         # Prevents interview guides from being committed
-├── AGENTS.md                          # LLM configuration (Coforma standards)
-└── README.md                          # This file
+├── src/
+│   ├── PieShop.Api/           # REST API
+│   ├── PieShop.Core/          # Business logic & state machine
+│   ├── PieShop.Infrastructure/ # Data access & external services
+│   └── PieShop.Tests/         # Unit & integration tests
+├── ui/                        # React frontend
+├── mocks/                     # Mock external services
+└── docker/                    # Docker configuration
 ```
 
-### Interview Branches (Generated Implementations)
-**Branch naming**: `interview/[language]-[role]-[level]`
+### Technology Stack
 
-Examples:
-- `interview/python-backend-senior` 
-- `interview/nodejs-fullstack-mid`
-- `interview/csharp-backend-senior`
+**Backend:**
+- .NET 8.0 / ASP.NET Core
+- Entity Framework Core
+- PostgreSQL 16
+- MongoDB 7.0
+
+**Frontend:**
+- React 18.2
+- TypeScript 5.3
+- Vite 5.0
+
+**Infrastructure:**
+- Docker & Docker Compose
+
+### State Machine
+
+Orders progress through the following states:
 
 ```
-pie-shop/  (on interview/python-backend-senior)
-├── (all from main, plus:)
-├── src/                               # Language-specific implementation
-├── tests/                             # Mixed quality tests
-├── mocks/                             # Mock robot services
-├── ui/                                # UI with accessibility issues
-├── docker/                            # Docker setup
-├── docker-compose.yml                 # Works locally, has operational gaps
-└── README.md                          # Updated with setup instructions
+ORDERED → PICKING → PREPPING → BAKING → DELIVERING → COMPLETED
+                                                   ↓
+                                                ERROR
 ```
 
-**Note**: Interview guides (`INTERVIEW_GUIDE_PYTHON.md`, etc.) are **never committed**. They're stored in company shared drive only.
+## API Endpoints
 
-## Quick Start - Running an Interview
+### Order Management
 
-### For Interviewers: Setting Up a New Interview
+**Create Order**
+```http
+POST /api/orders
+Content-Type: application/json
 
-**Step 1: Generate Implementation for Language/Role** (30-45 min, one-time setup)
-
-1. Create interview branch:
-   ```bash
-   git checkout main
-   git pull
-   git checkout -b interview/[language]-[role]-[level]
-   # Example: interview/python-backend-senior
-   ```
-
-2. Copy the prompt from `.specify/IMPLEMENTATION_PROMPT.md` and paste it to the **modern-architect-engineer** agent
-
-3. Answer three questions:
-   - **Language/Framework?** → Python/FastAPI, Node.js/Express, Java/Spring Boot, Go/Gin, etc.
-   - **Role?** → Backend, Full Stack, DevOps, Security, Accessibility
-   - **Experience Level?** → Junior, Mid, Senior, Staff+
-
-4. The agent generates:
-   - ✅ Complete working code with intentional technical debt
-   - ✅ Docker Compose setup
-   - ✅ Mock robot services
-   - ✅ Tests (mixed quality)
-   - ✅ UI with accessibility violations
-   - ✅ **Interview guide with exact file paths and line numbers**
-
-5. **Commit implementation WITHOUT the interview guide:**
-   ```bash
-   git add src/ tests/ docker/ ui/ docker-compose.yml README.md
-   git commit -m "Add [Language] implementation for [Role] [Level] interviews"
-   git push -u origin interview/[language]-[role]-[level]
-   ```
-
-6. **Store interview guide privately:**
-   - Save `INTERVIEW_GUIDE_[LANGUAGE].md` to company shared drive
-   - Location: `[Company Drive]/Recruiting/Pie-Shop-Interview-Guides/`
-   - **DO NOT commit guide to GitHub**
-   - See `.specify/INTERVIEW_GUIDE_SHARED_DRIVE_README.md` for guide management
-
-**Step 2: Send Candidate the Branch** (1-2 days before interview)
-
-Email the candidate:
-```
-Hi [Candidate],
-
-For your upcoming interview on [DATE] at [TIME], please review this codebase:
-https://github.com/coforma/pie-shop/tree/interview/python-backend-senior
-
-Allow 1-2 hours to review. The code works but has intentional gaps for discussion.
-Come ready to discuss what you observe - strengths, weaknesses, and trade-offs.
-
-Looking forward to our discussion!
+{
+  "pieType": "apple",
+  "customer": {
+    "name": "Jane Doe",
+    "email": "jane@example.com",
+    "phone": "+1-555-0123"
+  },
+  "deliveryAddress": {
+    "street": "123 Main St",
+    "city": "Springfield",
+    "state": "IL",
+    "zip": "62701"
+  }
+}
 ```
 
-**Step 3: Prep Interview** (15 min before interview)
+**Get Order Status**
+```http
+GET /api/orders/{orderId}
+```
 
-1. Download interview guide from company shared drive
-2. Review Layer 2 checkpoints (guided tour)
-3. Note backup prompts in Layer 3
-4. Have code open in one screen, guide in another (private screen)
+**List All Orders**
+```http
+GET /api/orders
+```
 
-**Step 4: Conduct Interview** (60 minutes)
+**Get Pie Catalog**
+```http
+GET /api/catalog
+```
 
-- **5 min - Orient**: "This is a pie shop system that orchestrates orders through robot services. Let me give you a quick tour..."
-- **15 min - Guided Tour**: Walk through 2-3 critical checkpoints from guide (state machine, service clients, security, etc.)
-- **30 min - Candidate Explores**: They navigate and share observations. Use backup prompts if they miss critical areas
-- **10 min - Wrap-up**: "What would you prioritize? What would you need before production?"
+**Health Check**
+```http
+GET /api/health
+```
 
-**Step 5: Post-Interview** (15 min)
+### Response Format
 
-1. Document assessment using scoring rubric from guide
-2. **Delete guide from local downloads** (security)
-3. Share feedback with team
+**Success (201 Created):**
+```json
+{
+  "orderId": "550e8400-e29b-41d4-a716-446655440000",
+  "status": "ORDERED",
+  "estimatedDelivery": "2025-12-17T18:30:00Z",
+  "createdAt": "2025-12-17T16:00:00Z"
+}
+```
 
-### What to Look For
+**Error (400 Bad Request):**
+```json
+{
+  "error": "INVALID_PIE_TYPE",
+  "message": "Pie type 'chocolate' is not available",
+  "availableTypes": ["apple", "cherry", "pumpkin", "pecan", "blueberry"]
+}
+```
 
-**Strong Candidates**:
-- ✅ Identify specific issues with examples
-- ✅ Discuss trade-offs ("Simple but won't scale because...")
-- ✅ Proactively mention security, accessibility, operations
-- ✅ Prioritize improvements logically
-- ✅ Balance pragmatism with quality
+## Available Pies
 
-**Red Flags**:
-- ❌ Can't identify issues without heavy prompting
-- ❌ Suggests complete rewrites without reason
-- ❌ Misses critical security/accessibility problems
-- ❌ Dogmatic about patterns without discussing trade-offs
+- Apple Pie (45 min bake time)
+- Cherry Pie (40 min bake time)
+- Pumpkin Pie (50 min bake time)
+- Pecan Pie (55 min bake time)
+- Blueberry Pie (42 min bake time)
 
-## Why This Works for Interviews
+## Data Storage
 
-✅ **Not Obviously Fake**: Realistic distributed system complexity  
-✅ **Approachable Domain**: Everyone understands ordering a pie  
-✅ **Multi-Dimensional**: Tests architecture, code, security, accessibility, operations  
-✅ **Language Agnostic**: Generate in any language  
-✅ **Time Efficient**: 1-hour interview, no take-home burden  
-✅ **50+ Discussion Points**: Rich conversation opportunities  
-✅ **Production-Like**: Real technical debt, not contrived problems
+**PostgreSQL** - Transactional order data:
+- Orders table
+- State history table
 
-## Intentional Issues Included
+**MongoDB** - Recipe catalog:
+- Pie recipes with ingredients and baking instructions
 
-### Security
-- No authentication/authorization
-- Hard-coded secrets
-- Incomplete input validation
-- No rate limiting
+## Development
 
-### Observability
-- No distributed tracing
-- No circuit breakers
-- Basic retry logic (no exponential backoff)
-- Missing health checks
+### Running Tests
 
-### Accessibility (UI)
-- Missing form labels
-- Poor color contrast
-- No keyboard navigation
-- Improper ARIA usage
-- Status indicators using color only
+```bash
+# Run all tests
+dotnet test
 
-### Code Quality
-- Some functions too long
-- Hard-coded configuration values
-- Inconsistent error handling
-- Mixed test quality
+# Run specific test project
+dotnet test src/PieShop.Tests/PieShop.Tests.csproj
 
-### Operations
-- No Kubernetes manifests
-- Missing container resource limits
-- No graceful shutdown
-- Outdated documentation
+# Run with coverage
+dotnet test --collect:"XPlat Code Coverage"
+```
 
-## Philosophy: Specification-Driven Development
+### Database Migrations
 
-This project follows **Specification-Driven Development (SDD)**:
+```bash
+# Apply migrations
+cd src/PieShop.Api
+dotnet ef database update
 
-1. **Specifications as Source of Truth**: The spec defines WHAT, implementations define HOW
-2. **Language Agnostic**: One spec, many implementations
-3. **Executable Specifications**: Detailed enough to generate working code
-4. **Deliberately Incomplete**: Gaps create learning opportunities
+# Create new migration
+dotnet ef migrations add MigrationName -p ../PieShop.Infrastructure
+```
 
-See `.specify/memory/constitution.md` for complete design philosophy.
+### Configuration
 
-## Branch Strategy & Workflow
+Configuration is managed through `appsettings.json` files:
 
-### Main Branch
-- Contains only specifications and templates
-- No generated code or interview guides
-- Safe to be public
-- **Never merge interview branches to main**
+- `appsettings.json` - Base configuration
+- `appsettings.Development.json` - Development overrides
 
-### Interview Branches
-- One branch per language/role/level combination
-- Contains generated implementation code
-- Shared directly with candidates via branch URL
-- **Never merged to main** (kept separate)
-- Can be regenerated if spec changes
+Key configuration sections:
+- `ConnectionStrings` - Database connections
+- `ExternalServices` - Service endpoints
+- `Logging` - Log levels
 
-### Interview Guides
-- Generated alongside implementation
-- **Stored in company shared drive ONLY**
-- Never committed to any branch (blocked by `.gitignore`)
-- Downloaded by interviewers before each interview
-- Deleted after interview (security)
+## Mock Services
 
-See `.specify/WORKFLOW_PROPOSAL.md` for complete workflow details.
+The mock services simulate realistic behavior:
 
-## Documentation
+- **Fruit Picker**: 30-60 second processing time
+- **Baker**: 15-20 minute baking time (accelerated for testing)
+- **Delivery**: 10-30 minute delivery time based on distance
 
-- **📋 Feature Spec**: `.specify/features/001-pie-shop-orchestration.md` - Complete requirements
-- **🏛️ Constitution**: `.specify/memory/constitution.md` - Design principles  
-- **🎯 Implementation Prompt**: `.specify/IMPLEMENTATION_PROMPT.md` - How to generate code
-- **📊 Project Summary**: `.specify/PROJECT_SUMMARY.md` - Overview and statistics
-- **🔒 Interview Guides**: Stored on company shared drive (not in repo) - See `.specify/INTERVIEW_GUIDE_SHARED_DRIVE_README.md`
+Each service occasionally returns errors to simulate real-world failure scenarios.
 
-## Customization for Different Roles
+## Troubleshooting
 
-The generated interview guide includes markers:
+### Common Issues
 
-- `[CRITICAL]` - Must cover
-- `[ROLE: Backend]` - Relevant for backend engineers
-- `[ROLE: Full Stack]` - Relevant for full stack engineers
-- `[ROLE: DevOps]` - Relevant for SRE/DevOps
-- `[ROLE: Security]` - Relevant for security engineers
-- `[LEVEL: Senior+]` - For experienced candidates
-- `[TOPIC: Security]` - Organized by topic area
+**Port Already in Use:**
+```bash
+# Check what's using the port
+lsof -i :5000
+# Kill the process or change port in appsettings.json
+```
 
-## Interview Scoring
+**Database Connection Failed:**
+- Ensure PostgreSQL and MongoDB containers are running
+- Check connection strings in appsettings.json
+- Verify Docker network configuration
 
-### Junior (0-2 years)
-- Identifies obvious issues
-- Understands basic patterns
-- Asks good questions
+**Mock Services Not Responding:**
+- Check Docker logs: `docker-compose logs [service-name]`
+- Verify service URLs in appsettings.json match Docker Compose ports
+- Restart services: `docker-compose restart`
 
-### Mid (2-5 years)
-- Identifies most security/accessibility issues
-- Discusses trade-offs
-- Shows production experience
+**CORS Errors in Browser:**
+- Verify CORS configuration in `Program.cs`
+- Check that UI is running on expected port (3000)
 
-### Senior (5-8 years)
-- Systematic analysis across all areas
-- Provides alternatives with rationale
-- Discusses operational concerns
+## Testing the System
 
-### Staff+ (8+ years)
-- All of senior, plus:
-- Connects technical to business outcomes
-- Proposes migration strategies
-- Discusses organizational impacts
+### End-to-End Flow
 
-## Assessment Dimensions
+1. Open customer UI at http://localhost:3000
+2. Select a pie type and fill out the order form
+3. Submit the order and note the order ID
+4. Watch the order progress through states
+5. Check admin dashboard at http://localhost:3000/admin
+6. View order details and state history
 
-This system evaluates:
-- ✅ Backend Architecture (state machines, service integration, distributed systems)
-- ✅ API Design (REST, versioning, error handling, contracts)
-- ✅ Code Quality (structure, testing, maintainability)
-- ✅ Security (auth, validation, secrets management)
-- ✅ Accessibility (WCAG 2.1 AA, Section 508, keyboard navigation)
-- ✅ Observability (logging, metrics, tracing, alerting)
-- ✅ Operations (deployment, scaling, reliability)
-- ✅ Product Thinking (requirements, edge cases, prioritization)
+### Using the API Directly
 
-## About Coforma
+```bash
+# Create an order
+curl -X POST http://localhost:5000/api/orders \
+  -H "Content-Type: application/json" \
+  -d '{
+    "pieType": "apple",
+    "customer": {
+      "name": "Test User",
+      "email": "test@example.com",
+      "phone": "+1-555-0100"
+    },
+    "deliveryAddress": {
+      "street": "456 Oak Ave",
+      "city": "Portland",
+      "state": "OR",
+      "zip": "97201"
+    }
+  }'
 
-This interview system aligns with Coforma's values:
-- **Ethics-first**: Accessibility and security are never optional
-- **Human-centered**: Consider end users in all technical decisions
-- **Public service**: Built for government work (Section 508 compliance)
-- **Partnerships**: Collaborative assessment, not interrogation
+# Check order status
+curl http://localhost:5000/api/orders/{orderId}
+```
 
-See `AGENTS.md` for complete Coforma context and coding standards.
+## Project Goals
+
+This system demonstrates:
+- Microservice orchestration patterns
+- State machine implementation
+- External service integration
+- Error handling and retry logic
+- Polyglot persistence
+- Full-stack development with .NET and React
 
 ## Contributing
 
-To improve this interview system:
-
-1. Identify gaps in assessment coverage
-2. Suggest additional intentional issues
-3. Propose new discussion scenarios
-4. Share calibration feedback
-
-See `.specify/memory/constitution.md` for amendment process.
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Run tests to ensure everything works
+5. Submit a pull request
 
 ## License
 
-Provided for use by Coforma and partners. Modify as needed for your interview process.
+MIT License - See LICENSE file for details
 
----
+## Support
 
-**Ready to interview?** Copy `.specify/IMPLEMENTATION_PROMPT.md` to the modern-architect-engineer agent to generate your first implementation! 🥧
+For questions or issues, please open a GitHub issue or contact the development team.

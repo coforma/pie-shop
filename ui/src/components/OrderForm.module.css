@@ -1,0 +1,125 @@
+/* ACCESSIBILITY ISSUES IN THIS FILE (intentional for interview discussion) */
+
+.container {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.form {
+  margin-top: 2rem;
+}
+
+.section {
+  margin-bottom: 2rem;
+}
+
+.section h3 {
+  margin-bottom: 1rem;
+  color: #2c3e50;
+}
+
+.pieGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+/* ACCESSIBILITY ISSUE: Cards are not keyboard accessible (no tabindex, no keyboard handlers) */
+.pieCard {
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  padding: 1rem;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.pieCard:hover {
+  border-color: #3498db;
+}
+
+.pieCard.selected {
+  border-color: #2ecc71;
+  background-color: #ecf9f2;
+}
+
+.pieName {
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.pieDesc {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 0.5rem;
+}
+
+.pieInfo {
+  font-size: 0.85rem;
+  color: #999;
+}
+
+.field {
+  margin-bottom: 1rem;
+}
+
+/* ACCESSIBILITY ISSUE: Using span instead of label - no association with input */
+.field span {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+.input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+/* ACCESSIBILITY ISSUE: No visible focus indicator */
+.input:focus {
+  outline: none; /* BAD: Removes default focus indicator */
+  border-color: #3498db;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 1rem;
+}
+
+/* ACCESSIBILITY ISSUE: Poor color contrast - #999 on #aaa fails WCAG AA */
+.submit {
+  background-color: #aaa;
+  color: #999;
+  border: none;
+  padding: 1rem 2rem;
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 4px;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.submit:hover:not(:disabled) {
+  background-color: #999;
+}
+
+.submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.error {
+  background-color: #fee;
+  color: #c33;
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  /* ACCESSIBILITY ISSUE: Error message not in aria-live region for screen readers */
+}

@@ -1,0 +1,116 @@
+version: '3.8'
+
+# INTENTIONAL ISSUES (for interview discussion):
+# - No resource limits (memory, CPU)
+# - No health checks
+# - No restart policies
+# - Hard-coded passwords
+# - No networking isolation
+# - No volume management
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      # SECURITY ISSUE: Hard-coded password in docker-compose!
+      POSTGRES_DB: pieshop
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password123
+    ports:
+      - "5432:5432"
+    # TODO: Add volume for data persistence
+    # volumes:
+    #   - postgres-data:/var/lib/postgresql/data
+    # TODO: Add health check
+    # healthcheck:
+    #   test: ["CMD-SHELL", "pg_isready -U postgres"]
+    #   interval: 10s
+    #   timeout: 5s
+    #   retries: 5
+
+  mongodb:
+    image: mongo:7.0
+    ports:
+      - "27017:27017"
+    # TODO: Add authentication
+    # TODO: Add volume for data persistence
+    # volumes:
+    #   - mongodb-data:/data/db
+
+  fruit-picker:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.mocks
+    command: ["dotnet", "fruit-picker/FruitPickerMock.dll"]
+    ports:
+      - "8081:8081"
+    # TODO: Add resource limits
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: '0.5'
+    #       memory: 512M
+
+  baker:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.mocks
+    command: ["dotnet", "baker/BakerMock.dll"]
+    ports:
+      - "8082:8082"
+
+  delivery:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.mocks
+    command: ["dotnet", "delivery/DeliveryMock.dll"]
+    ports:
+      - "8083:8083"
+
+  api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    ports:
+      - "5000:5000"
+    environment:
+      # SECURITY ISSUE: Connection strings with passwords in environment variables
+      ConnectionStrings__Postgres: "Host=postgres;Port=5432;Database=pieshop;Username=postgres;Password=password123"
+      ConnectionStrings__MongoDB: "mongodb://mongodb:27017"
+      MongoDB__Database: "pieshop"
+      ExternalServices__FruitPickerUrl: "http://fruit-picker:8081"
+      ExternalServices__BakerUrl: "http://baker:8082"
+      ExternalServices__DeliveryUrl: "http://delivery:8083"
+    depends_on:
+      - postgres
+      - mongodb
+      - fruit-picker
+      - baker
+      - delivery
+    # TODO: Add restart policy
+    # restart: unless-stopped
+    # TODO: Add health check
+    # healthcheck:
+    #   test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
+    #   interval: 30s
+    #   timeout: 10s
+    #   retries: 3
+
+  ui:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.ui
+    ports:
+      - "3000:80"
+    depends_on:
+      - api
+
+# TODO: Define volumes
+# volumes:
+#   postgres-data:
+#   mongodb-data:
+
+# TODO: Define networks for isolation
+# networks:
+#   frontend:
+#   backend:

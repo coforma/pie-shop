@@ -1,0 +1,15 @@
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+
+COPY mocks/ mocks/
+RUN dotnet restore mocks/FruitPickerMock/FruitPickerMock.csproj
+RUN dotnet restore mocks/BakerMock/BakerMock.csproj
+RUN dotnet restore mocks/DeliveryMock/DeliveryMock.csproj
+
+RUN dotnet publish mocks/FruitPickerMock/FruitPickerMock.csproj -c Release -o /app/fruit-picker
+RUN dotnet publish mocks/BakerMock/BakerMock.csproj -c Release -o /app/baker
+RUN dotnet publish mocks/DeliveryMock/DeliveryMock.csproj -c Release -o /app/delivery
+
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
+WORKDIR /app
+COPY --from=build /app .
