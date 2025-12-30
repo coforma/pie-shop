@@ -51,6 +51,14 @@ Generate production-like code with intentional technical debt:
 
 ### Intentional Technical Debt to Include:
 
+> **CRITICAL: This section describes what CODE ISSUES to create, NOT what COMMENTS to write.**
+> 
+> The items below are things the code should DO (or fail to do). They are NOT comments to add.
+> For example, "No authentication on API endpoints" means the code should lack authentication - 
+> do NOT add a comment saying "No authentication here!" The absence of the feature IS the issue.
+> 
+> See "Important Guidelines" section #9 for comment guidelines.
+
 #### Security Issues (Critical for Discussion)
 - ❌ No authentication on API endpoints (add TODO comment)
 - ❌ No authorization/RBAC (add TODO comment)
@@ -127,50 +135,50 @@ pie-shop/
 │   ├── api/
 │   │   ├── routes/
 │   │   │   ├── orders.py          # Order management endpoints
-│   │   │   └── health.py          # Health checks (TODO: implement)
+│   │   │   └── health.py          # Health checks
 │   │   └── middleware/
-│   │       └── auth.py             # Authentication (TODO: implement)
+│   │       └── auth.py             # Authentication
 │   ├── core/
-│   │   ├── state_machine.py       # State machine logic (well-implemented)
-│   │   └── config.py               # Configuration (mixed: some env, some hard-coded)
+│   │   ├── state_machine.py       # State machine logic
+│   │   └── config.py               # Configuration
 │   ├── services/
-│   │   ├── order_service.py       # Business logic (some functions too long)
-│   │   ├── fruit_picker_client.py # External service client (basic retry, no circuit breaker)
-│   │   ├── baker_client.py        # External service client (no timeout handling)
-│   │   └── delivery_client.py     # External service client (missing error categorization)
+│   │   ├── order_service.py       # Business logic
+│   │   ├── fruit_picker_client.py # External service client
+│   │   ├── baker_client.py        # External service client
+│   │   └── delivery_client.py     # External service client
 │   ├── models/
 │   │   ├── order.py                # SQLAlchemy models
 │   │   └── recipe.py               # MongoDB documents
 │   └── utils/
-│       └── logger.py               # Logging setup (basic, no trace IDs)
+│       └── logger.py               # Logging setup
 ├── tests/
 │   ├── unit/
-│   │   ├── test_state_machine.py  # Well-written tests
-│   │   └── test_order_service.py  # Some coverage, missing edge cases
+│   │   ├── test_state_machine.py  # State machine tests
+│   │   └── test_order_service.py  # Order service tests
 │   └── integration/
-│       └── test_order_flow.py      # Happy path only
+│       └── test_order_flow.py      # Integration tests
 ├── mocks/
-│   ├── fruit_picker_mock.py       # Mock service with realistic delays
+│   ├── fruit_picker_mock.py       # Mock service
 │   ├── baker_mock.py
 │   └── delivery_mock.py
 ├── ui/
 │   ├── templates/
-│   │   ├── order_form.html        # With accessibility issues
-│   │   └── admin_dashboard.html   # With accessibility issues
+│   │   ├── order_form.html        # Customer order form
+│   │   └── admin_dashboard.html   # Admin view
 │   └── static/
 │       ├── css/
-│       │   └── styles.css          # Poor contrast, removes focus indicators
+│       │   └── styles.css          # Styles
 │       └── js/
-│           └── app.js               # Basic functionality
+│           └── app.js               # Frontend logic
 ├── docker/
-│   ├── Dockerfile                  # Works but missing health checks
-│   └── docker-compose.yml          # Local setup, no resource limits
+│   ├── Dockerfile                  # Container build
+│   └── docker-compose.yml          # Local setup
 ├── migrations/
 │   └── 001_initial_schema.sql      # Database setup
 ├── config/
-│   ├── development.env             # Hard-coded secrets here!
-│   └── production.env.example      # Template (TODO: use secrets manager)
-├── README.md                       # Outdated documentation
+│   ├── development.env             # Development config
+│   └── production.env.example      # Production template
+├── README.md                       # Documentation
 ├── requirements.txt / package.json # Dependencies
 └── .gitignore
 ```
@@ -349,9 +357,9 @@ Based on the role I specified, mark priorities:
 def pick_fruit(self, fruit_type: str, quantity: int):
     try:
         response = requests.post(
-            f"{self.base_url}/pick-fruit",  # Hard-coded URL, should be config
+            f"{self.base_url}/pick-fruit",
             json={"fruitType": fruit_type, "quantity": quantity},
-            timeout=10  # Magic number
+            timeout=10
         )
         response.raise_for_status()
         return response.json()
@@ -433,12 +441,54 @@ Organized by topic with backup prompts:
 6. **Interviewer Prep**: Guide should help interviewer prep in 15 minutes
 7. **Natural TODOs**: Comments should look like real developer TODOs, not interview plants
 8. **Balance**: Some code good (state machine), some bad (service clients), most in-between
-9. **NO INTERVIEW HINTS IN CANDIDATE-FACING FILES**: 
+9. **NO INTERVIEW HINTS IN CANDIDATE-FACING FILES**:
    - README.md should be professional and straightforward (no "intentional issues" mentions)
-   - Code comments should use normal developer TODO comments (not "SECURITY ISSUE:" or "intentional for interview")
-   - Remove any hints like "Note: This has intentional technical debt"
    - Make it look like a real production codebase a developer would create
    - Issues should be discovered through code review, not telegraphed in comments
+
+   **Comment Guidelines - What TO write:**
+   - `// TODO: Add authentication middleware` - vague future work
+   - `// TODO: Implement circuit breaker pattern` - names a pattern without explaining why
+   - `// TODO: Add pagination` - simple feature note
+   - `// TODO: Move to configuration` - neutral improvement
+   - `// TODO: Add error handling` - generic without specifics
+   - `// Basic retry logic` - neutral description
+   - No comment at all (many real codebases have missing code without comments)
+
+   **Comment Guidelines - What NOT to write (these are interview hints):**
+   - `// SECURITY ISSUE: ...` or `// ACCESSIBILITY ISSUE: ...` - labels the problem category
+   - `// ISSUES: No X, no Y, missing Z` - lists multiple problems in one comment
+   - `// No authentication check - anyone can see all orders!` - explains the security impact
+   - `// Should be exponential!` or `// should be in configuration!` - tells them what's wrong
+   - `// Doesn't categorize errors (400 vs 500 vs 503)` - explains what's missing
+   - `// This will fail with many orders` - predicts the failure mode
+   - `// Hard-coded URL - should be in configuration!` - both identifies AND solves
+   - `// TODO: Missing tests for: [list]` - explicitly lists what's untested
+   - `// More missing labels` - acknowledges repeated issues
+   - `/// ISSUES: ...` in XML doc comments - especially obvious in doc headers
+   - `// No validation here - should check for null/empty values!` - explains what's missing
+   - `// Hard-coded!` or `// Magic number` with exclamation - draws attention to issues
+   - `// No error handling at all here!` - explicitly calls out missing code
+   - `/// This is an example of incomplete tests` - meta-commentary about code quality
+   - `// Basic error handling - doesn't distinguish between X and Y` - explains the flaw
+   - `// Just rethrow - no recovery attempt` - critiques the implementation
+
+   **Transformation Examples:**
+   | Bad (Interview Hint) | Good (Natural TODO) |
+   |----------------------|---------------------|
+   | `// ACCESSIBILITY ISSUE: Input fields missing label elements` | No comment, or `// TODO: Improve form accessibility` |
+   | `// ISSUES: No error categorization, no bulkhead pattern` | No comment (let code speak for itself) |
+   | `// Hard-coded base URL - should be in configuration!` | `// TODO: Move to config` |
+   | `// Simple linear backoff - should be exponential!` | No comment, or `// Basic retry logic` |
+   | `// TODO: This will fail with many orders!` | `// TODO: Add pagination` |
+   | `// No authentication check - anyone can see all orders!` | No comment (the missing auth IS the issue) |
+   | `// Doesn't distinguish network errors from service errors` | No comment |
+   | `// TODO: Missing tests for: [bullet list]` | `// TODO: Add more test coverage` |
+   | `// No validation here - should check for null/empty values!` | No comment (let code speak for itself) |
+   | `/// This is an example of incomplete tests` | No comment (test coverage speaks for itself) |
+   | `// Just rethrow - no recovery attempt` | No comment |
+
+   **The Golden Rule**: A comment should never tell a candidate what's wrong or how to fix it. If removing the comment would make the issue harder to find, the comment is an interview hint.
 10. **Interview Guide is Separate**: All discussion points, issue locations, and line numbers go in INTERVIEW_GUIDE_[LANGUAGE].md (which is gitignored)
 
 ## Deliverables:

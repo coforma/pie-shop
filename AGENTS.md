@@ -43,18 +43,55 @@ This repository template is designed for technology challenges and collaborative
 - **Clear, concise language**: Use straightforward language that is accessible to diverse audiences
 - **Inclusive terminology**: Use inclusive language that reflects Coforma's commitment to diversity and accessibility
 - **Government-appropriate tone**: Remember that many projects serve government and public sector clients
-- **NO INTERVIEW HINTS IN CANDIDATE-FACING FILES**: 
+- **NO INTERVIEW HINTS IN CANDIDATE-FACING FILES**:
   - **CRITICAL**: Candidates see the code - it must look like a real production codebase
   - README.md should be professional and helpful (not mention "intentional issues")
-  - Code comments should use normal developer patterns:
-    - ✅ Good: `// TODO: Add authentication middleware`
-    - ✅ Good: `// TODO: Implement circuit breaker pattern`
-    - ✅ Good: `// TODO: Move secrets to Key Vault`
-    - ❌ Bad: `// SECURITY ISSUE: No authentication!`
-    - ❌ Bad: `// intentional for interview`
-    - ❌ Bad: `// This has technical debt for discussion`
-  - Issues should be discovered through code review, not telegraphed
+  - Code comments should use normal developer patterns - issues should be discovered through code review, not telegraphed
   - Interview guides (which ARE gitignored) contain all the discussion points
+
+  **Comment Guidelines - What TO write:**
+  - `// TODO: Add authentication middleware` - vague future work
+  - `// TODO: Implement circuit breaker pattern` - names a pattern without explaining why
+  - `// TODO: Add pagination` - simple feature note
+  - `// TODO: Move to configuration` - neutral improvement
+  - `// TODO: Add error handling` - generic without specifics
+  - `// Basic retry logic` - neutral description
+  - No comment at all (many real codebases have missing code without comments)
+
+  **Comment Guidelines - What NOT to write (these are interview hints):**
+  - `// SECURITY ISSUE: ...` or `// ACCESSIBILITY ISSUE: ...` - labels the problem category
+  - `// ISSUES: No X, no Y, missing Z` - lists multiple problems in one comment
+  - `// No authentication check - anyone can see all orders!` - explains the security impact
+  - `// Should be exponential!` or `// should be in configuration!` - tells them what's wrong
+  - `// Doesn't categorize errors (400 vs 500 vs 503)` - explains what's missing
+  - `// This will fail with many orders` - predicts the failure mode
+  - `// Hard-coded URL - should be in configuration!` - both identifies AND solves
+  - `// TODO: Missing tests for: [list]` - explicitly lists what's untested
+  - `// More missing labels` - acknowledges repeated issues
+  - `/// ISSUES: ...` in XML doc comments - especially obvious in doc headers
+  - `// No validation here - should check for null/empty values!` - explains what's missing
+  - `// Hard-coded!` or `// Magic number` with exclamation - draws attention to issues
+  - `// No error handling at all here!` - explicitly calls out missing code
+  - `/// This is an example of incomplete tests` - meta-commentary about code quality
+  - `// Basic error handling - doesn't distinguish between X and Y` - explains the flaw
+  - `// Just rethrow - no recovery attempt` - critiques the implementation
+
+  **Transformation Examples:**
+  | Bad (Interview Hint) | Good (Natural TODO) |
+  |----------------------|---------------------|
+  | `// ACCESSIBILITY ISSUE: Input fields missing label elements` | No comment, or `// TODO: Improve form accessibility` |
+  | `// ISSUES: No error categorization, no bulkhead pattern` | No comment (let code speak for itself) |
+  | `// Hard-coded base URL - should be in configuration!` | `// TODO: Move to config` |
+  | `// Simple linear backoff - should be exponential!` | No comment, or `// Basic retry logic` |
+  | `// TODO: This will fail with many orders!` | `// TODO: Add pagination` |
+  | `// No authentication check - anyone can see all orders!` | No comment (the missing auth IS the issue) |
+  | `// Doesn't distinguish network errors from service errors` | No comment |
+  | `// TODO: Missing tests for: [bullet list]` | `// TODO: Add more test coverage` |
+  | `// No validation here - should check for null/empty values!` | No comment (let code speak for itself) |
+  | `/// This is an example of incomplete tests` | No comment (test coverage speaks for itself) |
+  | `// Just rethrow - no recovery attempt` | No comment |
+
+  **The Golden Rule**: A comment should never tell a candidate what's wrong or how to fix it. If removing the comment would make the issue harder to find, the comment is an interview hint.
 
 ### Code Quality Standards
 - **Accessibility first**: Ensure all code follows WCAG 2.2 guidelines and accessibility best practices
