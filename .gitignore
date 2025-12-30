@@ -50,3 +50,18 @@ yarn-error.log*
 *.tmp
 *.temp
 .cache/
+
+# Node.js
+node_modules/
+package-lock.json
+dist/
+build/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Database
+*.db
+*.sqlite

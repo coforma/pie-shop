@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pie Shop - Order Your Pie</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Robotic Pie Shop</h1>
+        <p>Order a freshly baked pie, prepared by our robot chefs and delivered by drone!</p>
+        
+        <form id="orderForm">
+            <div class="form-group">
+                <select id="pieType" name="pieType">
+                    <option value="">Select Pie Type</option>
+                    <option value="apple">Apple Pie</option>
+                    <option value="cherry">Cherry Pie</option>
+                    <option value="pumpkin">Pumpkin Pie</option>
+                    <option value="pecan">Pecan Pie</option>
+                    <option value="blueberry">Blueberry Pie</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <input type="text" id="name" name="name" placeholder="Your Name">
+            </div>
+
+            <div class="form-group">
+                <input type="email" id="email" name="email" placeholder="Email Address">
+            </div>
+
+            <div class="form-group">
+                <input type="tel" id="phone" name="phone" placeholder="Phone Number">
+            </div>
+
+            <div class="form-group">
+                <input type="text" id="street" name="street" placeholder="Street Address">
+            </div>
+
+            <div class="form-group">
+                <input type="text" id="city" name="city" placeholder="City">
+            </div>
+
+            <div class="form-group">
+                <input type="text" id="state" name="state" placeholder="State (2 letters)" maxlength="2">
+            </div>
+
+            <div class="form-group">
+                <input type="text" id="zip" name="zip" placeholder="Zip Code">
+            </div>
+
+            <button type="submit" class="submit-btn">Place Order</button>
+        </form>
+
+        <div id="result" class="result"></div>
+    </div>
+
+    <script src="/js/order-form.js"></script>
+</body>
+</html>

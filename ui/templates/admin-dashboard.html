@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Pie Shop</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Pie Shop Admin Dashboard</h1>
+
+        <div class="controls">
+            <button onclick="loadOrders()" class="refresh-btn">Refresh Orders</button>
+            <div class="filter-group">
+                <select id="statusFilter">
+                    <option value="">All Statuses</option>
+                    <option value="ORDERED">Ordered</option>
+                    <option value="PICKING">Picking</option>
+                    <option value="PREPPING">Prepping</option>
+                    <option value="BAKING">Baking</option>
+                    <option value="DELIVERING">Delivering</option>
+                    <option value="COMPLETED">Completed</option>
+                    <option value="ERROR">Error</option>
+                </select>
+            </div>
+        </div>
+
+        <h4>Order List</h4>
+
+        <table id="ordersTable">
+            <tr>
+                <td>Order ID</td>
+                <td>Customer</td>
+                <td>Pie Type</td>
+                <td>Status</td>
+                <td>Created</td>
+                <td>Actions</td>
+            </tr>
+            <tbody id="ordersBody">
+                <tr>
+                    <td colspan="6">Loading orders...</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div id="orderDetail" class="order-detail"></div>
+    </div>
+
+    <script src="/js/admin-dashboard.js"></script>
+</body>
+</html>
