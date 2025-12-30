@@ -1,0 +1,74 @@
+---
+mode: agent
+description: Generate a complete interview implementation for the Pie Shop assessment
+---
+
+# Generate Interview Implementation
+
+Generate a complete interview implementation for the Pie Shop Order Orchestration System.
+
+## Parameters (provide these when attaching this prompt)
+
+- **language**: python-fastapi, nodejs-express, csharp-dotnet, java-springboot, go-gin, ruby-rails, typescript-nestjs
+- **role**: backend, fullstack, devops, security, accessibility
+- **level**: junior, mid, senior, staff
+
+## Before You Begin
+
+1. **Create the interview branch:**
+   ```bash
+   git checkout main && git pull
+   git checkout -b interview/<language>-<role>-<level>
+   ```
+
+2. **Read these specification files:**
+   - [.specify/features/001-pie-shop-orchestration.md]
+   - [.specify/memory/constitution.md]
+   - [.specify/IMPLEMENTATION_PROMPT.md]
+   - [AGENTS.md]
+
+## Implementation Requirements
+
+Generate production-like code with **intentional technical debt** for interview discussion:
+
+### What to Generate
+- `src/` - Application source code
+- `tests/` - Unit and integration tests (mixed quality)
+- `mocks/` - Mock services for external dependencies
+- `ui/` - HTML/CSS/JS for order form and admin dashboard
+- `docker-compose.yml` - Container orchestration
+- `migrations/` - Database schema
+- `README.md` - Documentation (intentionally imperfect)
+
+### Intentional Issues to Include
+- Security: No auth, hard-coded secrets, missing validation
+- Resilience: No circuit breakers, basic retry without backoff
+- Accessibility: Missing labels, poor contrast, no keyboard nav
+- Code Quality: Long functions, magic numbers, inconsistent error handling
+- Testing: Happy path only, missing edge cases
+
+### CRITICAL: No Interview Hints
+
+DO NOT add comments that telegraph issues to candidates.
+
+**Bad (hints):**
+- `// SECURITY ISSUE: No authentication`
+- `// Should be exponential backoff!`
+- `// ACCESSIBILITY: Missing labels`
+
+**Good (natural):**
+- `// TODO: Add authentication middleware`
+- `// Basic retry logic`
+- No comment at all
+
+## After Generation
+
+1. **Review for interview hints** - Remove any comments that give away issues
+2. **Commit the implementation:**
+   ```bash
+   git add .
+   git commit -m "Add <language> implementation for <role> (<level>)"
+   git push -u origin interview/<language>-<role>-<level>
+   ```
+3. **Generate interview guide separately** (do not commit to repo)
+4. **Save guide to company shared drive**

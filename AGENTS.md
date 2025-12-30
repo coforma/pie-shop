@@ -209,6 +209,35 @@ git push -u origin interview/python-backend-senior
 
 See `.specify/WORKFLOW.md` for complete workflow documentation.
 
+#### Quick Start: Generate Interview Command
+
+This repository includes slash commands for multiple AI coding tools. Use these to quickly generate an interview implementation:
+
+| Tool | Command |
+|------|---------|
+| **OpenCode** | `/generate-interview python-fastapi backend senior` |
+| **Claude Code** | `/project:generate-interview python-fastapi backend senior` |
+| **Cursor** | `/generate-interview python-fastapi backend senior` |
+| **GitHub Copilot** | Attach `.github/prompts/generate-interview.prompt.md` |
+| **Windsurf** | `@generate-interview` then describe parameters |
+
+**Parameters:**
+- `language`: python-fastapi, nodejs-express, csharp-dotnet, java-springboot, go-gin, ruby-rails, typescript-nestjs
+- `role`: backend, fullstack, devops, security, accessibility
+- `level`: junior, mid, senior, staff
+
+**What the command does:**
+1. Creates an interview branch (`interview/<language>-<role>-<level>`)
+2. Reads specifications from `.specify/`
+3. Generates implementation with intentional technical debt
+4. Follows the "no interview hints" guidelines
+5. Prompts you to commit and push
+
+**After generation:**
+- Review code for any accidental interview hints
+- Generate interview guide separately (ask the AI agent)
+- Save guide to company shared drive (never commit)
+
 ### Common Challenge Patterns
 
 When working on tech challenges using this template, consider these common requirements:

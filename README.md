@@ -59,11 +59,50 @@ pie-shop/  (on interview/python-backend-senior)
 
 **Note**: Interview guides (`INTERVIEW_GUIDE_PYTHON.md`, etc.) are **never committed**. They're stored in company shared drive only.
 
-## Quick Start - Running an Interview
+## Quick Start - Generate an Interview
+
+Use the built-in slash commands with your preferred AI coding tool:
+
+| Tool | Command |
+|------|---------|
+| **OpenCode** | `/generate-interview python-fastapi backend senior` |
+| **Claude Code** | `/project:generate-interview python-fastapi backend senior` |
+| **Cursor** | `/generate-interview python-fastapi backend senior` |
+| **GitHub Copilot** | Attach `.github/prompts/generate-interview.prompt.md` |
+| **Windsurf** | `@generate-interview` then describe parameters |
+
+**Parameters:**
+- `language`: python-fastapi, nodejs-express, csharp-dotnet, java-springboot, go-gin, ruby-rails, typescript-nestjs
+- `role`: backend, fullstack, devops, security, accessibility
+- `level`: junior, mid, senior, staff
+
+The command will:
+1. Create an interview branch (`interview/<language>-<role>-<level>`)
+2. Read specifications from `.specify/`
+3. Generate implementation with intentional technical debt
+4. Prompt you to review, commit, and push
+
+**After generation:**
+- Review code for any accidental interview hints
+- Ask the AI to generate an interview guide (save to shared drive, never commit)
+- Push branch and share URL with candidate
+
+---
+
+## Detailed Workflow - Running an Interview
 
 ### For Interviewers: Setting Up a New Interview
 
-**Step 1: Generate Implementation for Language/Role** (30-45 min, one-time setup)
+**Step 1: Generate Implementation** (30-45 min, one-time per language/role/level)
+
+**Option A: Use Slash Command (Recommended)**
+
+Run the appropriate command for your AI tool (see Quick Start above). The AI will:
+- Create the branch
+- Generate all implementation files
+- Follow the no-interview-hints guidelines
+
+**Option B: Manual Generation**
 
 1. Create interview branch:
    ```bash
@@ -73,35 +112,35 @@ pie-shop/  (on interview/python-backend-senior)
    # Example: interview/python-backend-senior
    ```
 
-2. Copy the prompt from `.specify/IMPLEMENTATION_PROMPT.md` and paste it to the **modern-architect-engineer** agent
+2. Copy the prompt from `.specify/IMPLEMENTATION_PROMPT.md` and paste it to your AI coding agent
 
 3. Answer three questions:
-   - **Language/Framework?** → Python/FastAPI, Node.js/Express, Java/Spring Boot, Go/Gin, etc.
-   - **Role?** → Backend, Full Stack, DevOps, Security, Accessibility
-   - **Experience Level?** → Junior, Mid, Senior, Staff+
+   - **Language/Framework?** - Python/FastAPI, Node.js/Express, Java/Spring Boot, Go/Gin, etc.
+   - **Role?** - Backend, Full Stack, DevOps, Security, Accessibility
+   - **Experience Level?** - Junior, Mid, Senior, Staff+
 
 4. The agent generates:
-   - ✅ Complete working code with intentional technical debt
-   - ✅ Docker Compose setup
-   - ✅ Mock robot services
-   - ✅ Tests (mixed quality)
-   - ✅ UI with accessibility violations
-   - ✅ **Interview guide with exact file paths and line numbers**
+   - Complete working code with intentional technical debt
+   - Docker Compose setup
+   - Mock robot services
+   - Tests (mixed quality)
+   - UI with accessibility violations
 
-5. **Commit implementation WITHOUT the interview guide:**
-   ```bash
-   git add src/ tests/ docker/ ui/ docker-compose.yml README.md
-   git commit -m "Add [Language] implementation for [Role] [Level] interviews"
-   git push -u origin interview/[language]-[role]-[level]
-   ```
+**Step 2: Commit and Push**
 
-6. **Store interview guide privately:**
-   - Save `INTERVIEW_GUIDE_[LANGUAGE].md` to company shared drive
-   - Location: `[Company Drive]/Recruiting/Pie-Shop-Interview-Guides/`
-   - **DO NOT commit guide to GitHub**
-   - See `.specify/INTERVIEW_GUIDE_SHARED_DRIVE_README.md` for guide management
+```bash
+git add .
+git commit -m "Add [Language] implementation for [Role] [Level] interviews"
+git push -u origin interview/[language]-[role]-[level]
+```
 
-**Step 2: Send Candidate the Branch** (1-2 days before interview)
+**Step 3: Generate Interview Guide Separately**
+
+Ask your AI agent to generate an interview guide with discussion points, file paths, and expected responses. **Save this to company shared drive - never commit to the repository.**
+
+Location: `[Company Drive]/Recruiting/Pie-Shop-Interview-Guides/`
+
+**Step 4: Send Candidate the Branch** (1-2 days before interview)
 
 Email the candidate:
 ```
@@ -311,4 +350,4 @@ Provided for use by Coforma and partners. Modify as needed for your interview pr
 
 ---
 
-**Ready to interview?** Copy `.specify/IMPLEMENTATION_PROMPT.md` to the modern-architect-engineer agent to generate your first implementation! 🥧
+**Ready to interview?** Run `/generate-interview` with your AI coding tool to get started!
