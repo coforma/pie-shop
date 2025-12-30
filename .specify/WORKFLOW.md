@@ -7,6 +7,78 @@ This repository uses a **branch-per-language** strategy where:
 - **Interview branches** = Generated implementations, one per language/role/level
 - **Interview guides** = Stored on company shared drive (never committed)
 
+## Automated Workflows
+
+This repository includes GitHub Actions to automate the interview generation process:
+
+| Workflow | Trigger | Purpose |
+|----------|---------|---------|
+| `generate-interview.yml` | Manual | Creates GitHub Issue to trigger Copilot agent |
+| `validate-no-hints.yml` | PR to interview/* | Checks code for interview hints |
+| `cleanup-interviews.yml` | Manual | Lists/deletes old interview branches |
+
+### Generate Interview Implementation
+
+**Path:** `.github/workflows/generate-interview.yml`
+
+Triggers Copilot coding agent to generate a language-specific implementation.
+
+**Inputs:**
+- `language`: python-fastapi, nodejs-express, csharp-dotnet, java-springboot, go-gin, ruby-rails, typescript-nestjs
+- `role`: backend, fullstack, devops, security, accessibility
+- `level`: junior, mid, senior, staff
+
+**How to use:**
+1. Go to Actions tab in GitHub
+2. Select "Generate Interview Implementation"
+3. Click "Run workflow"
+4. Select language, role, and level
+5. Wait for Copilot to create a PR
+
+**What happens:**
+1. Workflow creates a detailed Issue with implementation instructions
+2. Issue is assigned to `copilot-swe-agent[bot]`
+3. Copilot creates a PR on a `copilot/*` branch
+4. Validation workflow checks for interview hints
+5. Reviewer extracts guide, merges to `interview/*` branch
+
+### Validate No Interview Hints
+
+**Path:** `.github/workflows/validate-no-hints.yml`
+
+Runs automatically on PRs to `interview/**` branches. Checks that generated code doesn't contain comments that telegraph issues to candidates.
+
+**What it checks:**
+- Explicit issue labels (SECURITY ISSUE, ACCESSIBILITY ISSUE, etc.)
+- Comments explaining what's wrong ("should be exponential", "no authentication")
+- Comments predicting failures ("this will fail", "will break")
+- Comments listing issues ("Missing tests for:", "More missing")
+- Multiple exclamation marks drawing attention to problems
+
+**If check fails:**
+- PR is blocked from merging
+- Comment added with specific issues found
+- Developer must remove hints before merging
+
+### Cleanup Interview Branches
+
+**Path:** `.github/workflows/cleanup-interviews.yml`
+
+Manages the lifecycle of interview branches.
+
+**Actions:**
+- `list-only`: Show all interview branches with age
+- `delete-old`: Delete branches older than N days
+- `delete-specific`: Delete a specific branch by name
+
+**How to use:**
+1. Go to Actions tab
+2. Select "Cleanup Interview Branches"
+3. Choose action and parameters
+4. Enable dry_run=false to actually delete
+
+---
+
 ## Branch Strategy
 
 ### Main Branch
@@ -15,6 +87,7 @@ This repository uses a **branch-per-language** strategy where:
 - Constitution and principles (`.specify/memory/`)
 - Implementation generation prompt (`.specify/IMPLEMENTATION_PROMPT.md`)
 - This workflow guide
+- GitHub Actions workflows
 
 **Does NOT contain:**
 - Implementation code
@@ -42,10 +115,22 @@ Examples:
 - Shared directly with candidates via branch URL
 - Regenerated when specifications change
 
+---
+
 ## Workflow: Conducting an Interview
 
-### 1. Generate Implementation (One-time per language/role)
+### 1. Generate Implementation (Automated)
 
+**Option A: Use GitHub Actions (Recommended)**
+```
+1. Go to Actions > "Generate Interview Implementation"
+2. Select language, role, level
+3. Click "Run workflow"
+4. Wait for Copilot to create PR
+5. Review PR, extract guide, merge
+```
+
+**Option B: Manual Generation**
 ```bash
 # Create interview branch
 git checkout main
@@ -104,6 +189,8 @@ See you then!
 2. Delete guide from local machine (security)
 3. Share feedback with team
 
+---
+
 ## Security: Interview Guides
 
 **Storage:**
@@ -119,6 +206,8 @@ See you then!
 **Access:**
 - Restricted to hiring managers and interviewers only
 - Download before interview, delete after
+
+---
 
 ## Maintenance
 
@@ -144,6 +233,12 @@ git push --force
 
 ### Adding New Language/Role
 
+**Option A: Use Workflow**
+1. Go to Actions > "Generate Interview Implementation"
+2. Select the new language/role/level combination
+3. Review and merge the PR
+
+**Option B: Manual**
 ```bash
 # Create new branch from main
 git checkout main
@@ -152,9 +247,27 @@ git checkout -b interview/go-devops-senior
 # Follow "Generate Implementation" steps above
 ```
 
+### Cleaning Up Old Branches
+
+```bash
+# Option A: Use Workflow
+# Go to Actions > "Cleanup Interview Branches"
+# Select "delete-old" with max_age_days=90
+
+# Option B: Manual
+git push origin --delete interview/old-branch-name
+```
+
+---
+
 ## Quick Reference
 
-**To generate implementation:**
+**To generate implementation (automated):**
+```
+Actions > "Generate Interview Implementation" > Run workflow
+```
+
+**To generate implementation (manual):**
 ```bash
 git checkout -b interview/[lang]-[role]-[level]
 # Use .specify/IMPLEMENTATION_PROMPT.md with modern-architect-engineer
@@ -173,18 +286,39 @@ https://github.com/coforma/pie-shop/tree/interview/[lang]-[role]-[level]
 [Company Drive]/Recruiting/Pie-Shop-Interview-Guides/
 ```
 
+---
+
 ## What Candidates See vs. Interviewers See
 
 **Candidates (public repo/branches):**
-- ✅ Feature specifications
-- ✅ Implementation code with intentional issues
-- ✅ Docker setup, tests, mocks
-- ❌ NO interview guides
+- Feature specifications
+- Implementation code with intentional issues (but NO hints in comments)
+- Docker setup, tests, mocks
+- NO interview guides
 
 **Interviewers (company shared drive):**
-- 🔒 Generic interview guide (50+ discussion topics)
-- 🔒 Language-specific guides (file paths, expected responses, rubrics)
-- 🔒 User manual for conducting interviews
+- Generic interview guide (50+ discussion topics)
+- Language-specific guides (file paths, expected responses, rubrics)
+- User manual for conducting interviews
+
+---
+
+## Troubleshooting
+
+### Copilot didn't create a PR
+- Check that Copilot Pro/Business/Enterprise is enabled for the repository
+- Check that the issue was assigned to `copilot-swe-agent[bot]`
+- Check the issue for any error comments from Copilot
+
+### Validation check failed
+- Review the PR comment for specific hints found
+- Remove or neutralize the highlighted comments
+- Push changes and re-run the check
+
+### Branch already exists
+- The workflow will warn you but continue
+- Copilot will regenerate the implementation
+- Consider deleting the old branch first if you want a clean slate
 
 ---
 

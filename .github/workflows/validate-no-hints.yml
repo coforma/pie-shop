@@ -1,0 +1,281 @@
+# Validate No Interview Hints
+#
+# This workflow runs on PRs from Copilot (copilot/*) branches
+# and checks that generated code doesn't contain interview hints.
+#
+# Interview hints are comments that telegraph issues to candidates,
+# defeating the purpose of a code review interview.
+
+name: Validate No Interview Hints
+
+on:
+  pull_request:
+    branches:
+      - 'interview/**'
+    paths:
+      - 'src/**'
+      - 'tests/**'
+      - 'mocks/**'
+      - 'ui/**'
+      - '*.py'
+      - '*.js'
+      - '*.ts'
+      - '*.cs'
+      - '*.java'
+      - '*.go'
+      - '*.rb'
+      - '*.html'
+      - '*.css'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  check-for-hints:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check for interview hints
+        id: hint-check
+        run: |
+          echo "Checking for interview hints in code..."
+          
+          # Define patterns that indicate interview hints
+          # These are comments that telegraph issues to candidates
+          HINT_PATTERNS=(
+            # Explicit issue labels
+            "SECURITY ISSUE"
+            "ACCESSIBILITY ISSUE"
+            "PERFORMANCE ISSUE"
+            "BUG:"
+            "VULNERABILITY:"
+            "ISSUES:"
+            
+            # Comments that explain what's wrong
+            "should be exponential"
+            "should be in config"
+            "should check for"
+            "should validate"
+            "should handle"
+            "anyone can see"
+            "anyone can access"
+            "no authentication"
+            "no authorization"
+            "no validation here"
+            "missing validation"
+            "hard-coded!"
+            "hardcoded!"
+            "magic number"
+            
+            # Comments that predict failure
+            "this will fail"
+            "will fail with"
+            "will break"
+            "doesn't handle"
+            "doesn't check"
+            "doesn't validate"
+            "doesn't distinguish"
+            
+            # Comments that list issues
+            "Missing tests for:"
+            "More missing"
+            "example of incomplete"
+            "example of bad"
+            "example of poor"
+            
+            # Comments with exclamation marks calling out issues
+            "No error handling!"
+            "No retry!"
+            "No timeout!"
+            "Not secure!"
+            
+            # Rhetorical questions in comments
+            "What if .* fails"
+            "What happens when"
+          )
+          
+          # Files to check (exclude docs, configs, and this workflow)
+          FILE_PATTERNS="*.py *.js *.ts *.cs *.java *.go *.rb *.html *.css *.jsx *.tsx"
+          
+          HINTS_FOUND=0
+          HINT_DETAILS=""
+          
+          for pattern in "${HINT_PATTERNS[@]}"; do
+            # Search for pattern (case insensitive)
+            MATCHES=$(grep -rniE "$pattern" --include="*.py" --include="*.js" --include="*.ts" --include="*.cs" --include="*.java" --include="*.go" --include="*.rb" --include="*.html" --include="*.css" --include="*.jsx" --include="*.tsx" src/ tests/ mocks/ ui/ 2>/dev/null || true)
+            
+            if [ -n "$MATCHES" ]; then
+              HINTS_FOUND=$((HINTS_FOUND + 1))
+              HINT_DETAILS="${HINT_DETAILS}\n### Pattern: \`${pattern}\`\n\`\`\`\n${MATCHES}\n\`\`\`\n"
+            fi
+          done
+          
+          # Also check for /// ISSUES in C# XML docs
+          CS_ISSUES=$(grep -rn "/// ISSUES" --include="*.cs" src/ tests/ mocks/ 2>/dev/null || true)
+          if [ -n "$CS_ISSUES" ]; then
+            HINTS_FOUND=$((HINTS_FOUND + 1))
+            HINT_DETAILS="${HINT_DETAILS}\n### Pattern: \`/// ISSUES\` (C# XML docs)\n\`\`\`\n${CS_ISSUES}\n\`\`\`\n"
+          fi
+          
+          # Check for comments with multiple exclamation marks
+          EXCLAIM=$(grep -rniE "//.*!{2,}|#.*!{2,}" --include="*.py" --include="*.js" --include="*.ts" --include="*.cs" --include="*.java" --include="*.go" --include="*.rb" src/ tests/ mocks/ 2>/dev/null || true)
+          if [ -n "$EXCLAIM" ]; then
+            HINTS_FOUND=$((HINTS_FOUND + 1))
+            HINT_DETAILS="${HINT_DETAILS}\n### Pattern: Multiple exclamation marks\n\`\`\`\n${EXCLAIM}\n\`\`\`\n"
+          fi
+          
+          echo "hints_found=${HINTS_FOUND}" >> $GITHUB_OUTPUT
+          
+          # Write details to file for PR comment
+          echo -e "$HINT_DETAILS" > /tmp/hint_details.md
+          
+          if [ $HINTS_FOUND -gt 0 ]; then
+            echo "::error::Found ${HINTS_FOUND} potential interview hint patterns"
+            echo "status=failure" >> $GITHUB_OUTPUT
+          else
+            echo "No interview hints detected"
+            echo "status=success" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Comment on PR (failure)
+        if: steps.hint-check.outputs.status == 'failure'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const hintDetails = fs.readFileSync('/tmp/hint_details.md', 'utf8');
+            const hintsFound = ${{ steps.hint-check.outputs.hints_found }};
+            
+            const body = `## Interview Hint Check Failed
+            
+            Found **${hintsFound}** potential interview hint patterns in the code.
+            
+            Interview hints are comments that telegraph issues to candidates, defeating the purpose of a code review interview. Candidates should discover issues through careful code review, not through helpful comments.
+            
+            ### Issues Found
+            ${hintDetails}
+            
+            ### How to Fix
+            
+            **Replace interview hints with natural TODOs:**
+            
+            | Bad (Interview Hint) | Good (Natural TODO) |
+            |----------------------|---------------------|
+            | \`// SECURITY ISSUE: No auth\` | \`// TODO: Add auth middleware\` or no comment |
+            | \`// Should be exponential!\` | \`// Basic retry logic\` or no comment |
+            | \`// This will fail with many orders\` | \`// TODO: Add pagination\` |
+            | \`// No validation - should check!\` | No comment (missing validation IS the issue) |
+            
+            **The Golden Rule**: If removing a comment would make an issue harder to find, the comment is an interview hint and should be removed.
+            
+            See \`AGENTS.md\` and \`.specify/IMPLEMENTATION_PROMPT.md\` for complete guidelines.
+            
+            ---
+            *This check is blocking. Please fix the interview hints before merging.*`;
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: body
+            });
+
+      - name: Comment on PR (success)
+        if: steps.hint-check.outputs.status == 'success'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = `## Interview Hint Check Passed
+            
+            No interview hints detected in the code.
+            
+            **Reminder for reviewers:**
+            1. Extract the \`INTERVIEW_GUIDE_*.md\` file and save to company shared drive
+            2. Verify the guide has accurate file paths and line numbers
+            3. Delete the guide file from the PR before merging
+            
+            The interview guide should be stored at:
+            \`[Company Drive]/Recruiting/Pie-Shop-Interview-Guides/\``;
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: body
+            });
+
+      - name: Check for interview guide
+        id: guide-check
+        run: |
+          # Check if interview guide was generated
+          GUIDE_FILES=$(find . -name "INTERVIEW_GUIDE*.md" -type f 2>/dev/null || true)
+          
+          if [ -n "$GUIDE_FILES" ]; then
+            echo "guide_found=true" >> $GITHUB_OUTPUT
+            echo "guide_files<<EOF" >> $GITHUB_OUTPUT
+            echo "$GUIDE_FILES" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+            echo "Found interview guide(s):"
+            echo "$GUIDE_FILES"
+          else
+            echo "guide_found=false" >> $GITHUB_OUTPUT
+            echo "::warning::No interview guide found. Expected INTERVIEW_GUIDE_*.md"
+          fi
+
+      - name: Warn about interview guide
+        if: steps.guide-check.outputs.guide_found == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const guideFiles = `${{ steps.guide-check.outputs.guide_files }}`;
+            
+            const body = `## Interview Guide Detected
+            
+            Found interview guide file(s):
+            \`\`\`
+            ${guideFiles}
+            \`\`\`
+            
+            **ACTION REQUIRED before merging:**
+            
+            1. Download the interview guide file(s)
+            2. Save to company shared drive: \`[Company Drive]/Recruiting/Pie-Shop-Interview-Guides/\`
+            3. Delete the guide file(s) from this PR
+            4. The \`.gitignore\` should block these, but verify they're not committed
+            
+            Interview guides contain discussion points and expected answers that should **never** be visible to candidates.`;
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: body
+            });
+
+      - name: Fail if hints found
+        if: steps.hint-check.outputs.status == 'failure'
+        run: |
+          echo "Interview hints were found in the code. Please fix before merging."
+          exit 1
+
+      - name: Summary
+        run: |
+          echo "## Interview Hint Validation" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.hint-check.outputs.status }}" == "success" ]; then
+            echo "**Status:** Passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "**Status:** Failed" >> $GITHUB_STEP_SUMMARY
+            echo "**Hints Found:** ${{ steps.hint-check.outputs.hints_found }}" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.guide-check.outputs.guide_found }}" == "true" ]; then
+            echo "**Interview Guide:** Found (remember to extract before merging)" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "**Interview Guide:** Not found" >> $GITHUB_STEP_SUMMARY
+          fi

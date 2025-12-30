@@ -1,0 +1,186 @@
+# Cleanup Interview Branches
+#
+# This workflow manages the lifecycle of interview branches:
+# - Lists all interview/* branches with their age
+# - Optionally deletes branches older than a specified age
+# - Can delete specific branches by name
+#
+# Run manually to review or clean up old interview implementations.
+
+name: Cleanup Interview Branches
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Action to perform'
+        required: true
+        type: choice
+        options:
+          - list-only
+          - delete-old
+          - delete-specific
+        default: list-only
+      max_age_days:
+        description: 'Delete branches older than this many days (for delete-old)'
+        required: false
+        type: number
+        default: 90
+      branch_to_delete:
+        description: 'Specific branch to delete (for delete-specific, e.g., interview/python-backend-senior)'
+        required: false
+        type: string
+      dry_run:
+        description: 'Dry run (show what would be deleted without deleting)'
+        required: false
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+jobs:
+  manage-branches:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: List interview branches
+        id: list-branches
+        run: |
+          echo "Fetching all remote branches..."
+          git fetch --all --prune
+          
+          echo "Interview branches:"
+          echo ""
+          
+          # Get all interview/* branches with their last commit date
+          BRANCHES=$(git for-each-ref --sort=-committerdate refs/remotes/origin/interview/ --format='%(refname:short) %(committerdate:iso8601) %(committerdate:relative)' | sed 's|origin/||')
+          
+          if [ -z "$BRANCHES" ]; then
+            echo "No interview branches found."
+            echo "branch_count=0" >> $GITHUB_OUTPUT
+          else
+            echo "$BRANCHES" | while read branch date relative; do
+              echo "- $branch (last commit: $relative)"
+            done
+            
+            BRANCH_COUNT=$(echo "$BRANCHES" | wc -l | tr -d ' ')
+            echo "branch_count=${BRANCH_COUNT}" >> $GITHUB_OUTPUT
+            
+            # Save branch list for later steps
+            echo "$BRANCHES" > /tmp/branches.txt
+          fi
+
+      - name: Delete old branches
+        if: inputs.action == 'delete-old'
+        run: |
+          MAX_AGE_DAYS=${{ inputs.max_age_days }}
+          DRY_RUN=${{ inputs.dry_run }}
+          CUTOFF_DATE=$(date -d "${MAX_AGE_DAYS} days ago" +%s 2>/dev/null || date -v-${MAX_AGE_DAYS}d +%s)
+          
+          echo "Checking for branches older than ${MAX_AGE_DAYS} days..."
+          echo "Cutoff date: $(date -d @${CUTOFF_DATE} 2>/dev/null || date -r ${CUTOFF_DATE})"
+          echo ""
+          
+          DELETED_COUNT=0
+          SKIPPED_COUNT=0
+          
+          git for-each-ref --sort=-committerdate refs/remotes/origin/interview/ --format='%(refname:short) %(committerdate:unix)' | sed 's|origin/||' | while read branch timestamp; do
+            if [ "$timestamp" -lt "$CUTOFF_DATE" ]; then
+              if [ "$DRY_RUN" == "true" ]; then
+                echo "[DRY RUN] Would delete: $branch"
+              else
+                echo "Deleting: $branch"
+                git push origin --delete "$branch" || echo "Failed to delete $branch"
+              fi
+              DELETED_COUNT=$((DELETED_COUNT + 1))
+            else
+              echo "Keeping: $branch (within age limit)"
+              SKIPPED_COUNT=$((SKIPPED_COUNT + 1))
+            fi
+          done
+          
+          echo ""
+          if [ "$DRY_RUN" == "true" ]; then
+            echo "DRY RUN complete. No branches were actually deleted."
+            echo "Set 'dry_run' to false to perform actual deletion."
+          fi
+
+      - name: Delete specific branch
+        if: inputs.action == 'delete-specific' && inputs.branch_to_delete != ''
+        run: |
+          BRANCH="${{ inputs.branch_to_delete }}"
+          DRY_RUN=${{ inputs.dry_run }}
+          
+          # Validate branch name starts with interview/
+          if [[ ! "$BRANCH" =~ ^interview/ ]]; then
+            echo "::error::Branch name must start with 'interview/'. Got: $BRANCH"
+            exit 1
+          fi
+          
+          # Check if branch exists
+          if git ls-remote --heads origin "$BRANCH" | grep -q .; then
+            if [ "$DRY_RUN" == "true" ]; then
+              echo "[DRY RUN] Would delete: $BRANCH"
+              echo ""
+              echo "Set 'dry_run' to false to perform actual deletion."
+            else
+              echo "Deleting branch: $BRANCH"
+              git push origin --delete "$BRANCH"
+              echo "Branch deleted successfully."
+            fi
+          else
+            echo "::error::Branch '$BRANCH' does not exist"
+            exit 1
+          fi
+
+      - name: Summary
+        run: |
+          echo "## Interview Branch Management" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Action:** ${{ inputs.action }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Dry Run:** ${{ inputs.dry_run }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          case "${{ inputs.action }}" in
+            list-only)
+              echo "### Interview Branches" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              if [ -f /tmp/branches.txt ]; then
+                echo "| Branch | Last Commit |" >> $GITHUB_STEP_SUMMARY
+                echo "|--------|-------------|" >> $GITHUB_STEP_SUMMARY
+                cat /tmp/branches.txt | while read branch date relative; do
+                  echo "| \`$branch\` | $relative |" >> $GITHUB_STEP_SUMMARY
+                done
+              else
+                echo "No interview branches found." >> $GITHUB_STEP_SUMMARY
+              fi
+              ;;
+            delete-old)
+              echo "### Cleanup Results" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "Checked for branches older than **${{ inputs.max_age_days }} days**." >> $GITHUB_STEP_SUMMARY
+              if [ "${{ inputs.dry_run }}" == "true" ]; then
+                echo "" >> $GITHUB_STEP_SUMMARY
+                echo "**Note:** This was a dry run. Set \`dry_run\` to false to delete branches." >> $GITHUB_STEP_SUMMARY
+              fi
+              ;;
+            delete-specific)
+              echo "### Deletion Result" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "Target branch: \`${{ inputs.branch_to_delete }}\`" >> $GITHUB_STEP_SUMMARY
+              if [ "${{ inputs.dry_run }}" == "true" ]; then
+                echo "" >> $GITHUB_STEP_SUMMARY
+                echo "**Note:** This was a dry run. Set \`dry_run\` to false to delete the branch." >> $GITHUB_STEP_SUMMARY
+              fi
+              ;;
+          esac
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Reminder:** Interview guides should be stored on the company shared drive, not in the repository." >> $GITHUB_STEP_SUMMARY
