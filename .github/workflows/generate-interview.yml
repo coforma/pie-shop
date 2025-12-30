@@ -1,19 +1,20 @@
 # Generate Interview Implementation
 #
-# This workflow creates a GitHub Issue that triggers Copilot coding agent
-# to generate a language-specific interview implementation.
+# This workflow creates a GitHub Issue to track interview implementation generation.
+# The issue contains all the configuration needed for generating the implementation.
 #
-# How it works:
-# 1. User triggers workflow with language/role/level inputs
-# 2. Workflow creates a detailed Issue with implementation prompt
-# 3. Workflow assigns the Issue to copilot-swe-agent[bot]
-# 4. Copilot creates a PR with implementation on copilot/* branch
-# 5. Reviewer validates PR, merges to interview/* branch
+# Generation Options:
+# 1. LOCAL (Recommended): Clone repo, use an AI agent locally, push to interview branch
+#    - Gives you full control over the output
+#    - Interview guide stays private
+#    - No reasoning visible in PRs
 #
-# Prerequisites:
-# - Repository must have Copilot Pro/Business/Enterprise
-# - Copilot coding agent must be enabled for the repository
-# - GITHUB_TOKEN needs issues:write and contents:write permissions
+# 2. COPILOT: Manually assign the issue to copilot-swe-agent[bot]
+#    - Copilot will create a PR automatically
+#    - Note: PR description will contain visible reasoning
+#    - Interview guide must be generated separately
+#
+# See .specify/WORKFLOW.md for complete instructions.
 
 name: Generate Interview Implementation
 
@@ -55,7 +56,6 @@ on:
 permissions:
   contents: write
   issues: write
-  pull-requests: write
 
 jobs:
   create-implementation-issue:
@@ -86,39 +86,24 @@ jobs:
             echo "branch_exists=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Read implementation prompt template
-        id: read-prompt
-        run: |
-          # Read the implementation prompt
-          PROMPT=$(cat .specify/IMPLEMENTATION_PROMPT.md)
-          
-          # Store in file for multi-line handling
-          echo "$PROMPT" > /tmp/prompt.txt
-
-      - name: Read constitution
-        id: read-constitution
-        run: |
-          CONSTITUTION=$(cat .specify/memory/constitution.md)
-          echo "$CONSTITUTION" > /tmp/constitution.txt
-
-      - name: Read feature spec
-        id: read-spec
-        run: |
-          SPEC=$(cat .specify/features/001-pie-shop-orchestration.md)
-          echo "$SPEC" > /tmp/spec.txt
-
       - name: Create implementation issue
         id: create-issue
+        env:
+          LANGUAGE: ${{ inputs.language }}
+          ROLE: ${{ inputs.role }}
+          LEVEL: ${{ inputs.level }}
+          BRANCH_NAME: ${{ steps.set-vars.outputs.branch_name }}
+          BRANCH_EXISTS: ${{ steps.check-branch.outputs.branch_exists }}
+          REPO: ${{ github.repository }}
         uses: actions/github-script@v7
         with:
           script: |
-            const fs = require('fs');
-            
-            const language = '${{ inputs.language }}';
-            const role = '${{ inputs.role }}';
-            const level = '${{ inputs.level }}';
-            const branchName = '${{ steps.set-vars.outputs.branch_name }}';
-            const branchExists = '${{ steps.check-branch.outputs.branch_exists }}' === 'true';
+            const language = process.env.LANGUAGE;
+            const role = process.env.ROLE;
+            const level = process.env.LEVEL;
+            const branchName = process.env.BRANCH_NAME;
+            const branchExists = process.env.BRANCH_EXISTS === 'true';
+            const repo = process.env.REPO;
             
             // Map inputs to human-readable format
             const languageMap = {
@@ -150,160 +135,145 @@ jobs:
             const humanRole = roleMap[role] || role;
             const humanLevel = levelMap[level] || level;
             
-            // Create issue body with implementation instructions
-            const issueBody = `## Interview Implementation Request
-
-            **Target Branch:** \`${branchName}\`
-            **Language/Framework:** ${humanLanguage}
-            **Role:** ${humanRole}
-            **Level:** ${humanLevel}
-            ${branchExists ? '\n> **Note:** This branch already exists and will be regenerated.\n' : ''}
-
-            ---
-
-            ## Instructions for Copilot
-
-            Generate a complete implementation of the Pie Shop Order Orchestration System.
-
-            ### Pre-Answered Questions
-
-            1. **Programming language and framework:** ${humanLanguage}
-            2. **Interview role:** ${humanRole}
-            3. **Candidate experience level:** ${humanLevel}
-
-            ### Implementation Requirements
-
-            Read and follow the complete implementation guide in \`.specify/IMPLEMENTATION_PROMPT.md\`.
-
-            Key requirements:
-            - Generate production-like code with **intentional technical debt** (security gaps, observability issues, code quality problems)
-            - Create working Docker Compose setup
-            - Include mock services for external dependencies
-            - Generate UI with accessibility issues
-            - Create tests with mixed quality (some good, some gaps)
-
-            ### CRITICAL: No Interview Hints
-
-            **DO NOT add comments that telegraph issues to candidates.**
-
-            Bad (interview hints):
-            - \`// SECURITY ISSUE: No authentication\`
-            - \`// This should be exponential backoff!\`
-            - \`// ACCESSIBILITY: Missing labels\`
-
-            Good (natural TODOs):
-            - \`// TODO: Add authentication middleware\`
-            - \`// Basic retry logic\`
-            - No comment at all (let code speak for itself)
-
-            See \`AGENTS.md\` and \`.specify/IMPLEMENTATION_PROMPT.md\` for complete guidelines.
-
-            ### Files to Generate
-
-            Create all implementation files in the repository root. Expected structure:
-            - \`src/\` - Application code
-            - \`tests/\` - Test files
-            - \`mocks/\` - Mock services
-            - \`ui/\` - HTML/CSS/JS for customer form and admin dashboard
-            - \`docker/\` or \`docker-compose.yml\` - Container setup
-            - \`migrations/\` - Database setup
-            - \`README.md\` - Documentation (intentionally imperfect)
-
-            ## Reference Documents
-
-            The following specifications guide this implementation:
-            - \`.specify/features/001-pie-shop-orchestration.md\` - Feature specification
-            - \`.specify/memory/constitution.md\` - Project principles
-            - \`.specify/IMPLEMENTATION_PROMPT.md\` - Detailed implementation guide
-            - \`AGENTS.md\` - LLM guidelines (especially "No Interview Hints" section)
-
-            ---
-
-            ## Acceptance Criteria
-
-            - [ ] All code compiles/runs without errors
-            - [ ] Docker Compose starts all services
-            - [ ] State machine tests pass
-            - [ ] Integration test for happy path passes
-            - [ ] UI renders order form and admin dashboard
-            - [ ] No interview hints in comments (validated by CI)
-            `;
+            const branchNote = branchExists ? '\n> **Note:** This branch already exists and will be regenerated.\n' : '';
+            
+            // Create issue body - using array join to avoid YAML escaping issues
+            const issueBody = [
+              '## Interview Implementation Request',
+              '',
+              '**Target Branch:** `' + branchName + '`',
+              '**Language/Framework:** ' + humanLanguage,
+              '**Role:** ' + humanRole,
+              '**Level:** ' + humanLevel,
+              branchNote,
+              '---',
+              '',
+              '## How to Generate',
+              '',
+              '### Option 1: Local Generation (Recommended)',
+              '',
+              'Generate locally using an AI coding agent for full control:',
+              '',
+              '```bash',
+              '# Clone and create branch',
+              'git clone https://github.com/' + repo + '.git',
+              'cd pie-shop',
+              'git checkout -b ' + branchName,
+              '',
+              '# Use the implementation prompt with your AI agent',
+              '# Copy .specify/IMPLEMENTATION_PROMPT.md and provide these answers:',
+              '# 1. Language: ' + humanLanguage,
+              '# 2. Role: ' + humanRole,
+              '# 3. Level: ' + humanLevel,
+              '',
+              '# After generation, commit and push',
+              'git add .',
+              'git commit -m "Add ' + humanLanguage + ' implementation for ' + humanRole + ' (' + level + ')"',
+              'git push -u origin ' + branchName,
+              '```',
+              '',
+              '**Benefits:**',
+              '- Interview guide generated privately (save to shared drive)',
+              '- Full control over what gets committed',
+              '- No reasoning/discussion visible to candidates',
+              '',
+              '### Option 2: GitHub Copilot',
+              '',
+              'Assign this issue to `copilot-swe-agent[bot]` to have Copilot generate the implementation.',
+              '',
+              '**Note:** Copilot\'s PR will contain visible reasoning in the description. You\'ll need to:',
+              '1. Review and clean up the PR description before sharing with candidates',
+              '2. Generate the interview guide separately',
+              '',
+              '---',
+              '',
+              '## Implementation Requirements',
+              '',
+              'Read and follow the complete implementation guide in `.specify/IMPLEMENTATION_PROMPT.md`.',
+              '',
+              'Key requirements:',
+              '- Generate production-like code with **intentional technical debt**',
+              '- Create working Docker Compose setup',
+              '- Include mock services for external dependencies',
+              '- Generate UI with accessibility issues',
+              '- Create tests with mixed quality (some good, some gaps)',
+              '',
+              '### CRITICAL: No Interview Hints',
+              '',
+              '**DO NOT add comments that telegraph issues to candidates.**',
+              '',
+              'Bad (interview hints):',
+              '- `// SECURITY ISSUE: No authentication`',
+              '- `// This should be exponential backoff!`',
+              '- `// ACCESSIBILITY: Missing labels`',
+              '',
+              'Good (natural TODOs):',
+              '- `// TODO: Add authentication middleware`',
+              '- `// Basic retry logic`',
+              '- No comment at all (let code speak for itself)',
+              '',
+              'See `AGENTS.md` and `.specify/IMPLEMENTATION_PROMPT.md` for complete guidelines.',
+              '',
+              '---',
+              '',
+              '## Reference Documents',
+              '',
+              '- `.specify/features/001-pie-shop-orchestration.md` - Feature specification',
+              '- `.specify/memory/constitution.md` - Project principles',
+              '- `.specify/IMPLEMENTATION_PROMPT.md` - Detailed implementation guide',
+              '- `AGENTS.md` - LLM guidelines',
+              '',
+              '---',
+              '',
+              '## Acceptance Criteria',
+              '',
+              '- [ ] All code compiles/runs without errors',
+              '- [ ] Docker Compose starts all services',
+              '- [ ] State machine tests pass',
+              '- [ ] Integration test for happy path passes',
+              '- [ ] UI renders order form and admin dashboard',
+              '- [ ] No interview hints in comments',
+              '- [ ] Interview guide saved to shared drive (if generated)',
+            ].join('\n');
 
             // Create the issue
             const issue = await github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              title: `[Copilot] Generate ${humanLanguage} implementation for ${humanRole} (${level})`,
+              title: 'Generate ' + humanLanguage + ' implementation for ' + humanRole + ' (' + level + ')',
               body: issueBody,
-              labels: ['copilot', 'interview-generation', language, role, level]
+              labels: ['interview-generation', language, role, level]
             });
 
-            console.log(`Created issue #${issue.data.number}: ${issue.data.html_url}`);
+            console.log('Created issue #' + issue.data.number + ': ' + issue.data.html_url);
             
             core.setOutput('issue_number', issue.data.number);
             core.setOutput('issue_url', issue.data.html_url);
 
-      - name: Assign issue to Copilot
-        id: assign-copilot
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          ISSUE_NUMBER=${{ steps.create-issue.outputs.issue_number }}
-          REPO="${{ github.repository }}"
-          BRANCH="${{ steps.set-vars.outputs.branch_name }}"
-          
-          echo "Assigning issue #${ISSUE_NUMBER} to Copilot coding agent..."
-          echo "Target repo: ${REPO}"
-          echo "Base branch: main"
-          
-          # Use the agent_assignment API to properly trigger Copilot coding agent
-          # This is required instead of the standard addAssignees endpoint
-          RESPONSE=$(gh api \
-            --method POST \
-            -H "Accept: application/vnd.github+json" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            "/repos/${REPO}/issues/${ISSUE_NUMBER}/assignees" \
-            -f 'assignees[]=copilot-swe-agent[bot]' \
-            -f "agent_assignment[target_repo]=${REPO}" \
-            -f "agent_assignment[base_branch]=main" \
-            2>&1) || true
-          
-          echo "API Response: ${RESPONSE}"
-          
-          # Check if assignment succeeded by verifying the issue has the assignee
-          ASSIGNEES=$(gh api "/repos/${REPO}/issues/${ISSUE_NUMBER}" --jq '.assignees[].login' 2>/dev/null || echo "")
-          
-          if echo "$ASSIGNEES" | grep -q "copilot-swe-agent"; then
-            echo "Successfully assigned to copilot-swe-agent[bot]"
-            echo "assignment_status=success" >> $GITHUB_OUTPUT
-          else
-            echo "::warning::Could not assign to Copilot agent. You may need to assign manually."
-            echo "::warning::This could mean: 1) GITHUB_TOKEN lacks permissions, 2) Need a PAT/GitHub App token"
-            echo "assignment_status=failed" >> $GITHUB_OUTPUT
-          fi
-
       - name: Summary
         run: |
-          echo "## Interview Generation Started" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Issue:** #${{ steps.create-issue.outputs.issue_number }}" >> $GITHUB_STEP_SUMMARY
-          echo "**URL:** ${{ steps.create-issue.outputs.issue_url }}" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Configuration" >> $GITHUB_STEP_SUMMARY
-          echo "- **Language:** ${{ inputs.language }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Role:** ${{ inputs.role }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Level:** ${{ inputs.level }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Target Branch:** ${{ steps.set-vars.outputs.branch_name }}" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Copilot Assignment" >> $GITHUB_STEP_SUMMARY
-          if [ "${{ steps.assign-copilot.outputs.assignment_status }}" == "success" ]; then
-            echo "✅ Successfully assigned to copilot-swe-agent[bot]" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "⚠️ Could not auto-assign to Copilot. Please assign manually." >> $GITHUB_STEP_SUMMARY
-          fi
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Next Steps" >> $GITHUB_STEP_SUMMARY
-          echo "1. Copilot coding agent will create a PR with the implementation" >> $GITHUB_STEP_SUMMARY
-          echo "2. Review the PR for interview hints (automated check)" >> $GITHUB_STEP_SUMMARY
-          echo "3. Extract interview guide and save to company shared drive" >> $GITHUB_STEP_SUMMARY
-          echo "4. Merge PR to create the interview branch" >> $GITHUB_STEP_SUMMARY
+          cat >> $GITHUB_STEP_SUMMARY << 'EOF'
+          ## Interview Implementation Issue Created
+
+          **Issue:** #${{ steps.create-issue.outputs.issue_number }}
+          **URL:** ${{ steps.create-issue.outputs.issue_url }}
+
+          ### Configuration
+          - **Language:** ${{ inputs.language }}
+          - **Role:** ${{ inputs.role }}
+          - **Level:** ${{ inputs.level }}
+          - **Target Branch:** `${{ steps.set-vars.outputs.branch_name }}`
+
+          ### Next Steps
+
+          **Option 1 - Local Generation (Recommended):**
+          1. Clone the repo and create branch `${{ steps.set-vars.outputs.branch_name }}`
+          2. Use `.specify/IMPLEMENTATION_PROMPT.md` with an AI agent
+          3. Save interview guide to shared drive
+          4. Commit implementation and push
+
+          **Option 2 - GitHub Copilot:**
+          1. Assign the issue to `copilot-swe-agent[bot]`
+          2. Review PR and clean up description
+          3. Generate interview guide separately
+          EOF
