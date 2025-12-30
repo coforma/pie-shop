@@ -209,20 +209,6 @@ jobs:
             - \`migrations/\` - Database setup
             - \`README.md\` - Documentation (intentionally imperfect)
 
-            ### Interview Guide (IMPORTANT)
-
-            **Generate the interview guide as a separate artifact.**
-
-            Create \`INTERVIEW_GUIDE_${language.toUpperCase().replace('-', '_')}.md\` with:
-            - Layer 1: Orientation (5 min)
-            - Layer 2: Guided Tour with file paths and line numbers (15 min)
-            - Layer 3: Candidate Exploration with backup prompts (30 min)
-            - Layer 4: Wrap-up questions (10 min)
-
-            **WARNING:** This file is gitignored. The PR reviewer will extract it and save to the company shared drive. Do not include interview hints in any other files.
-
-            ---
-
             ## Reference Documents
 
             The following specifications guide this implementation:
@@ -241,7 +227,6 @@ jobs:
             - [ ] Integration test for happy path passes
             - [ ] UI renders order form and admin dashboard
             - [ ] No interview hints in comments (validated by CI)
-            - [ ] Interview guide generated with file/line references
             `;
 
             // Create the issue
@@ -259,26 +244,43 @@ jobs:
             core.setOutput('issue_url', issue.data.html_url);
 
       - name: Assign issue to Copilot
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const issueNumber = ${{ steps.create-issue.outputs.issue_number }};
-            
-            // Assign to Copilot coding agent
-            // Note: This requires Copilot Pro/Business/Enterprise with coding agent enabled
-            try {
-              await github.rest.issues.addAssignees({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: issueNumber,
-                assignees: ['copilot-swe-agent[bot]']
-              });
-              console.log(`Assigned issue #${issueNumber} to copilot-swe-agent[bot]`);
-            } catch (error) {
-              console.log(`Warning: Could not assign to Copilot agent. Error: ${error.message}`);
-              console.log('This may mean Copilot coding agent is not enabled for this repository.');
-              console.log('You can manually assign the issue or use a different implementation approach.');
-            }
+        id: assign-copilot
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          ISSUE_NUMBER=${{ steps.create-issue.outputs.issue_number }}
+          REPO="${{ github.repository }}"
+          BRANCH="${{ steps.set-vars.outputs.branch_name }}"
+          
+          echo "Assigning issue #${ISSUE_NUMBER} to Copilot coding agent..."
+          echo "Target repo: ${REPO}"
+          echo "Base branch: main"
+          
+          # Use the agent_assignment API to properly trigger Copilot coding agent
+          # This is required instead of the standard addAssignees endpoint
+          RESPONSE=$(gh api \
+            --method POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "/repos/${REPO}/issues/${ISSUE_NUMBER}/assignees" \
+            -f 'assignees[]=copilot-swe-agent[bot]' \
+            -f "agent_assignment[target_repo]=${REPO}" \
+            -f "agent_assignment[base_branch]=main" \
+            2>&1) || true
+          
+          echo "API Response: ${RESPONSE}"
+          
+          # Check if assignment succeeded by verifying the issue has the assignee
+          ASSIGNEES=$(gh api "/repos/${REPO}/issues/${ISSUE_NUMBER}" --jq '.assignees[].login' 2>/dev/null || echo "")
+          
+          if echo "$ASSIGNEES" | grep -q "copilot-swe-agent"; then
+            echo "Successfully assigned to copilot-swe-agent[bot]"
+            echo "assignment_status=success" >> $GITHUB_OUTPUT
+          else
+            echo "::warning::Could not assign to Copilot agent. You may need to assign manually."
+            echo "::warning::This could mean: 1) GITHUB_TOKEN lacks permissions, 2) Need a PAT/GitHub App token"
+            echo "assignment_status=failed" >> $GITHUB_OUTPUT
+          fi
 
       - name: Summary
         run: |
@@ -292,6 +294,13 @@ jobs:
           echo "- **Role:** ${{ inputs.role }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Level:** ${{ inputs.level }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Target Branch:** ${{ steps.set-vars.outputs.branch_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Copilot Assignment" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.assign-copilot.outputs.assignment_status }}" == "success" ]; then
+            echo "✅ Successfully assigned to copilot-swe-agent[bot]" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ Could not auto-assign to Copilot. Please assign manually." >> $GITHUB_STEP_SUMMARY
+          fi
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Next Steps" >> $GITHUB_STEP_SUMMARY
           echo "1. Copilot coding agent will create a PR with the implementation" >> $GITHUB_STEP_SUMMARY
