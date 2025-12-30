@@ -1,0 +1,334 @@
+=====================================================================
+PIE SHOP - NODE.JS/EXPRESS IMPLEMENTATION SUMMARY
+=====================================================================
+
+Generated: $(date)
+Language: Node.js with Express
+Role: Full Stack Engineer
+Level: Senior (5-8 years)
+
+=====================================================================
+IMPLEMENTATION COMPLETE ✓
+=====================================================================
+
+Total Files Created: 34 files
+Total Code Size: ~15,000 lines
+Interview Guide: 26KB (gitignored, ready for shared drive)
+
+=====================================================================
+FILE STRUCTURE
+=====================================================================
+
+pie-shop/
+├── src/                                    # Application source code
+│   ├── api/
+│   │   ├── routes/
+│   │   │   ├── orders.js                  # REST API endpoints (no auth!)
+│   │   │   └── health.js                  # Basic health check
+│   │   └── middleware/
+│   │       └── auth.js                    # Empty TODO file
+│   ├── core/
+│   │   ├── state-machine.js               # Clean reference implementation
+│   │   └── config.js                      # Hard-coded secrets
+│   ├── services/
+│   │   ├── order-service.js               # Long processOrder method (80+ lines)
+│   │   ├── fruit-picker-client.js         # No circuit breaker
+│   │   ├── baker-client.js                # No error handling in getJobStatus
+│   │   └── delivery-client.js             # Hard-coded URL, basic retry
+│   ├── models/
+│   │   ├── order.js                       # Sequelize models
+│   │   └── recipe.js                      # Mongoose schema
+│   └── utils/
+│       └── logger.js                      # Basic Winston logger
+│
+├── tests/                                  # Mixed quality tests
+│   ├── unit/
+│   │   ├── state-machine.test.js          # EXCELLENT (18 test cases)
+│   │   └── fruit-picker-client.test.js    # POOR (only method checks)
+│   └── integration/
+│       └── order-flow.test.js             # Happy path only
+│
+├── mocks/                                  # Mock external services
+│   ├── fruit-picker-mock.js               # 10% failure rate
+│   ├── baker-mock.js                      # 5% failure rate
+│   └── delivery-mock.js                   # 8% failure rate
+│
+├── ui/                                     # UI with accessibility issues
+│   ├── templates/
+│   │   ├── order-form.html                # Missing labels, no keyboard nav
+│   │   └── admin-dashboard.html           # Color-only status, bad table markup
+│   └── static/
+│       ├── css/styles.css                 # Poor contrast, removed focus outline
+│       └── js/
+│           ├── order-form.js              # Client-side form handling
+│           └── admin-dashboard.js         # Dashboard interactions
+│
+├── migrations/                             # Database setup
+│   ├── 001_initial_schema.sql             # PostgreSQL schema
+│   ├── run-migrations.js                  # Migration runner
+│   └── seed-recipes.js                    # Recipe data seeder
+│
+├── docker/                                 # Container setup
+│   ├── Dockerfile                         # Main app container
+│   └── Dockerfile.mock                    # Mock services container
+│
+├── docker-compose.yml                      # Local development setup
+├── package.json                            # Dependencies
+├── .env.example                            # Configuration template
+└── README.md                               # Documentation (wrong port!)
+
+=====================================================================
+INTENTIONAL TECHNICAL DEBT (50+ Discussion Points)
+=====================================================================
+
+SECURITY (6 issues):
+  ✓ No authentication on API endpoints
+  ✓ Hard-coded API keys in config.js (lines 18, 23, 28)
+  ✓ Hard-coded database password (line 12)
+  ✓ No input validation
+  ✓ No rate limiting
+  ✓ No authorization checks
+
+OBSERVABILITY (7 issues):
+  ✓ No distributed tracing / correlation IDs
+  ✓ No circuit breaker pattern
+  ✓ Basic retry logic (linear backoff only)
+  ✓ All logging at INFO level
+  ✓ No metrics collection
+  ✓ Health check doesn't verify dependencies
+  ✓ No alerting configuration
+
+CODE QUALITY (8 issues):
+  ✓ processOrder method 80+ lines (order-service.js:84-164)
+  ✓ Hard-coded URL in delivery-client.js (line 7)
+  ✓ Inconsistent error handling
+  ✓ baker-client.js getJobStatus no error handling
+  ✓ Configuration scattered (env vars + hard-coded)
+  ✓ No transaction management
+  ✓ Potential race conditions
+  ✓ Magic numbers not extracted to constants
+
+TESTING (8 issues):
+  ✓ Fruit picker client tests minimal
+  ✓ Integration tests only happy path
+  ✓ No error scenario tests
+  ✓ No concurrent operation tests
+  ✓ No database transaction tests
+  ✓ No contract tests vs OpenAPI specs
+  ✓ Some tests brittle (timing-dependent)
+  ✓ Missing edge case coverage
+
+ACCESSIBILITY (12 issues):
+  ✓ Missing <label> elements in order form
+  ✓ Poor color contrast (#999 on #aaa)
+  ✓ Focus indicators removed (outline: none)
+  ✓ No keyboard navigation support
+  ✓ Error messages not announced to screen readers
+  ✓ Table missing <th> and scope attributes
+  ✓ Status indicators use color only
+  ✓ Improper heading hierarchy (h1 → h4)
+  ✓ ARIA attributes not used
+  ✓ No skip navigation link
+  ✓ No semantic HTML in places
+  ✓ No alt text patterns shown
+
+OPERATIONS (9 issues):
+  ✓ No health checks in docker-compose
+  ✓ No resource limits (memory, CPU)
+  ✓ No restart policies
+  ✓ No graceful shutdown handling
+  ✓ No Kubernetes manifests
+  ✓ No CI/CD pipeline
+  ✓ No log aggregation setup
+  ✓ No deployment automation
+  ✓ Missing runbooks
+
+DOCUMENTATION (6 issues):
+  ✓ README shows wrong port (8080 vs 3000)
+  ✓ API docs incomplete
+  ✓ No architecture diagram
+  ✓ No troubleshooting guide
+  ✓ No deployment documentation
+  ✓ Inconsistent inline comments
+
+=====================================================================
+INTERVIEW GUIDE STRUCTURE
+=====================================================================
+
+INTERVIEW_GUIDE_NODEJS_EXPRESS.md (26KB, gitignored)
+
+Layer 1: Orientation (5 min)
+  - File structure overview
+  - Key files list with descriptions
+  - System architecture explanation
+
+Layer 2: Guided Tour (15 min)
+  Checkpoint 1: State Machine (clean reference code)
+    File: src/core/state-machine.js
+    Focus: Well-implemented pattern for comparison
+    
+  Checkpoint 2: Service Client Resilience
+    File: src/services/fruit-picker-client.js (lines 13-38)
+    Issues: No circuit breaker, no retry, hard-coded timeout
+    
+  Checkpoint 3: Hard-coded Configuration
+    File: src/core/config.js (lines 17-27)
+    Issues: API keys in source, database password exposed
+    Also: delivery-client.js line 7 ignores config!
+    
+  Checkpoint 4: API Security
+    File: src/api/routes/orders.js
+    Issues: No auth, no validation, no authorization
+
+Layer 3: Candidate Exploration (30 min)
+  Topics with backup prompts:
+  - Observability (distributed tracing, metrics)
+  - Code Quality (long methods, code smells)
+  - Testing (mixed quality, gaps)
+  - Accessibility (WCAG violations)
+  - Resilience (error handling, retry patterns)
+  - Database (transactions, race conditions)
+  - Operations (deployment, monitoring)
+
+Layer 4: Wrap-up (10 min)
+  - Prioritization question
+  - Testing strategy question
+  - Production readiness checklist
+  - Architecture scaling question
+
+Assessment Rubric:
+  - Junior (0-2 years): Not target
+  - Mid (2-5 years): Below expectations
+  - Senior (5-8 years): Target level ✓
+  - Staff+ (8+ years): Exceeds expectations
+
+Red Flags:
+  ✗ Cannot identify security issues
+  ✗ Suggests rewrite without reasoning
+  ✗ Dogmatic about patterns
+  ✗ Ignores accessibility
+  ✗ No clarifying questions
+
+Positive Signals:
+  ✓ Systematic analysis
+  ✓ Discusses trade-offs
+  ✓ Specific suggestions
+  ✓ Asks questions
+  ✓ Recognizes good code
+  ✓ Balances fixes
+
+=====================================================================
+KEY FEATURES OF THIS IMPLEMENTATION
+=====================================================================
+
+1. REALISTIC TECHNICAL DEBT
+   - Not contrived or artificial
+   - Issues real developers create under pressure
+   - Multiple valid solutions exist
+   - Trade-offs worth discussing
+
+2. MULTI-DIMENSIONAL ASSESSMENT
+   - Backend architecture (state machines, service integration)
+   - API design (REST, error handling)
+   - Code quality (SOLID, refactoring)
+   - Security (auth, secrets, validation)
+   - Accessibility (WCAG 2.1 AA)
+   - Testing (strategy, coverage, quality)
+   - Operations (deployment, monitoring)
+
+3. CONTRAST EXAMPLES
+   - State machine: EXCELLENT (reference)
+   - Service clients: POOR (multiple issues)
+   - Tests: MIXED (excellent to minimal)
+   Shows candidate can recognize quality differences
+
+4. LAYERED COMPLEXITY
+   - Surface issues (missing auth, hard-coded secrets)
+   - Mid-level issues (no circuit breaker, long methods)
+   - Deep issues (race conditions, no distributed tracing)
+   Tests for different experience levels
+
+5. NO INTERVIEW HINTS
+   - TODOs are natural ("Add authentication middleware")
+   - No comments telegraphing issues
+   - Code speaks for itself
+   - Looks like real production codebase
+
+=====================================================================
+USAGE INSTRUCTIONS
+=====================================================================
+
+FOR INTERVIEWERS:
+
+1. Before Interview (15 min prep):
+   - Download INTERVIEW_GUIDE_NODEJS_EXPRESS.md from shared drive
+   - Review Layer 2 checkpoints
+   - Note backup prompts in Layer 3
+   - Have code open in one window, guide in another
+
+2. During Interview (60 min):
+   - Layer 1 (5 min): Orient candidate
+   - Layer 2 (15 min): Walk through checkpoints
+   - Layer 3 (30 min): Let candidate explore
+   - Layer 4 (10 min): Wrap-up questions
+
+3. After Interview (15 min):
+   - Score against rubric
+   - Document specific examples
+   - Delete local guide (security)
+   - Share feedback with team
+
+FOR CANDIDATES (sent before interview):
+
+Subject: Code Review Interview - Pie Shop System
+
+"For your interview on [DATE], please review this codebase:
+https://github.com/coforma/pie-shop/tree/copilot/generate-order-orchestration-system
+
+Allow 1-2 hours to review. The system works but has intentional
+gaps for discussion. Come ready to discuss what you observe -
+strengths, weaknesses, and trade-offs.
+
+The system orchestrates pie orders through robot services. You'll
+see Node.js/Express code, PostgreSQL/MongoDB databases, mock
+services, and a basic UI. No need to run it locally - we'll
+review the code together."
+
+=====================================================================
+VALIDATION CHECKLIST
+=====================================================================
+
+✓ All code files are syntactically valid (verified with node -c)
+✓ Project structure follows specification
+✓ All 50+ intentional issues present and discoverable
+✓ No interview hints in code comments
+✓ Interview guide generated with exact file paths and line numbers
+✓ Interview guide gitignored (not committed)
+✓ README intentionally has wrong port number
+✓ Mock services include realistic failure rates
+✓ Tests show quality contrast (excellent to minimal)
+✓ UI has specific WCAG violations
+✓ Configuration has hard-coded secrets
+✓ Service clients missing resilience patterns
+✓ API endpoints missing authentication
+✓ Docker Compose functional but missing operational features
+
+=====================================================================
+STORAGE INSTRUCTIONS
+=====================================================================
+
+INTERVIEW GUIDE (SENSITIVE - NEVER COMMIT):
+  - Save to: [Company Drive]/Recruiting/Pie-Shop-Interview-Guides/
+  - Filename: INTERVIEW_GUIDE_NODEJS_EXPRESS.md
+  - Access: Interviewers only
+  - Delete local copies after each interview
+
+CODE (PUBLIC - COMMITTED):
+  - Repository: github.com/coforma/pie-shop
+  - Branch: copilot/generate-order-orchestration-system
+  - Share with candidates via branch URL
+  - Contains no interview hints or solutions
+
+=====================================================================
+END OF SUMMARY
+=====================================================================
