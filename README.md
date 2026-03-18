@@ -68,3 +68,61 @@ API docs are at `http://localhost:3000/api/docs`.
 ```bash
 pytest tests/unit/ -v
 ```
+
+## Project Structure
+
+```
+pie-shop/
+├── src/                            # Application source
+│   ├── main.py                     # FastAPI app, route registration, startup
+│   ├── database.py                 # SQLAlchemy engine and session
+│   ├── api/
+│   │   ├── routes/
+│   │   │   ├── orders.py           # Order CRUD endpoints
+│   │   │   ├── catalog.py          # Pie catalog endpoints
+│   │   │   └── admin.py            # Admin stats endpoint
+│   │   ├── middleware/
+│   │   │   └── auth.py             # Request logging middleware
+│   │   └── schemas.py              # Pydantic request/response models
+│   ├── core/
+│   │   ├── state_machine.py        # Order state machine and transitions
+│   │   └── config.py               # Settings (pydantic-settings)
+│   ├── models/
+│   │   ├── order.py                # SQLAlchemy Order and StateHistory models
+│   │   └── recipe.py               # Pie catalog (in-memory)
+│   ├── services/
+│   │   ├── order_service.py        # Order business logic and orchestration
+│   │   ├── fruit_picker_client.py  # Fruit picker robot service client
+│   │   ├── baker_client.py         # Baker robot service client
+│   │   └── delivery_client.py      # Drone delivery service client
+│   └── utils/
+│       └── logger.py               # structlog configuration
+├── tests/
+│   ├── unit/
+│   │   ├── test_state_machine.py   # State machine transition tests
+│   │   └── test_order_service.py   # Order service unit tests
+│   └── integration/
+│       └── test_order_flow.py      # End-to-end order flow tests
+├── mocks/                          # Local mock robot services (FastAPI)
+│   ├── fruit_picker_mock.py        # Runs on port 8081
+│   ├── baker_mock.py               # Runs on port 8082
+│   └── delivery_mock.py            # Runs on port 8083
+├── ui/
+│   ├── templates/
+│   │   ├── order_form.html         # Customer order form
+│   │   └── admin_dashboard.html    # Order management dashboard
+│   └── static/
+│       ├── css/styles.css
+│       └── js/app.js
+├── migrations/
+│   └── 001_initial_schema.sql      # PostgreSQL schema
+├── config/
+│   ├── development.env             # Local development config
+│   └── production.env.example      # Production config template
+├── docker/
+│   ├── Dockerfile                  # API container
+│   └── Dockerfile.mock             # Mock services container
+├── docker-compose.yml
+├── requirements.txt
+└── pytest.ini
+```
