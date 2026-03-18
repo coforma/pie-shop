@@ -1,21 +1,73 @@
-# Pie Shop - Interview Assessment System
+# Pie Shop - Order Orchestration System
 
-A language-agnostic specification for conducting technical interviews through code review of a realistic distributed system.
-
-## What Is This?
-
-The Pie Shop is a deliberately designed interview project featuring a fictional bakery that orchestrates pie orders through robot services:
+A Python/FastAPI backend that orchestrates pie orders through a fleet of robot services.
 
 **Order Flow**: Customer orders pie → Robot picks fruit → Ingredients prepped → Robot bakes pie → Drone delivers
 
-The system is **intentionally incomplete** with realistic technical debt to create natural discussion points about:
-- Architecture patterns (state machines, service integration, distributed systems)
-- Code quality and testing
-- Security (authentication, secrets management, input validation)
-- Accessibility (WCAG 2.1 AA compliance)
-- Operations (observability, deployment, scaling)
+## Tech Stack
 
-**Key Philosophy**: The code works but has realistic problems for candidates to identify and discuss during live code review.
+- **API**: Python 3.11, FastAPI, uvicorn
+- **Database**: PostgreSQL (orders), MongoDB (pie catalog)
+- **Service Clients**: httpx (sync)
+- **Testing**: pytest, pytest-asyncio
+- **Infrastructure**: Docker, Docker Compose
+
+## Quick Start
+
+### Prerequisites
+- Docker and Docker Compose
+- Python 3.11+ (for local development)
+
+### Running with Docker Compose
+
+```bash
+docker-compose up
+```
+
+The API will be available at `http://localhost:3000` and the admin dashboard at `http://localhost:3000/admin`.
+
+API docs are at `http://localhost:3000/api/docs`.
+
+### Running Locally (without Docker)
+
+1. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+2. Copy and configure environment:
+   ```bash
+   cp config/development.env .env
+   ```
+
+3. Start mock services:
+   ```bash
+   uvicorn mocks.fruit_picker_mock:app --port 8081 &
+   uvicorn mocks.baker_mock:app --port 8082 &
+   uvicorn mocks.delivery_mock:app --port 8083 &
+   ```
+
+4. Start the API:
+   ```bash
+   uvicorn src.main:app --reload --port 8080
+   ```
+
+## API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/orders` | Create a new order |
+| GET | `/api/orders` | List all orders |
+| GET | `/api/orders/{id}` | Get order details |
+| POST | `/api/orders/{id}/advance` | Advance order to next state |
+| GET | `/api/pies` | List available pie types |
+| GET | `/api/admin/stats` | Order statistics |
+
+## Running Tests
+
+```bash
+pytest tests/unit/ -v
+```
 
 ## Repository Structure
 

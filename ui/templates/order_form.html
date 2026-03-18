@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pie Shop - Order a Pie</title>
+  <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+
+<body>
+  <div class="container">
+    <h1>Welcome to Pie Shop</h1>
+    <p>Order a freshly baked pie delivered by drone!</p>
+
+    <div class="order-form-wrapper">
+      <h4>Place Your Order</h4>
+
+      <div id="error-message" class="error-banner" style="display:none"></div>
+      <div id="success-message" class="success-banner" style="display:none"></div>
+
+      <form id="orderForm">
+        <div class="form-section">
+          <h4>Select Your Pie</h4>
+          <select id="pieType" name="pieType">
+            <option value="">-- Choose a pie --</option>
+            <option value="apple">Classic Apple Pie</option>
+            <option value="cherry">Sweet Cherry Pie</option>
+            <option value="pumpkin">Spiced Pumpkin Pie</option>
+            <option value="pecan">Southern Pecan Pie</option>
+            <option value="blueberry">Blueberry Burst Pie</option>
+          </select>
+        </div>
+
+        <div class="form-section">
+          <h4>Your Information</h4>
+          <input type="text" id="customerName" name="customerName" placeholder="Full Name" />
+          <input type="email" id="customerEmail" name="customerEmail" placeholder="Email Address" />
+          <input type="tel" id="customerPhone" name="customerPhone" placeholder="Phone Number (optional)" />
+        </div>
+
+        <div class="form-section">
+          <h4>Delivery Address</h4>
+          <input type="text" id="street" name="street" placeholder="Street Address" />
+          <input type="text" id="city" name="city" placeholder="City" />
+          <input type="text" id="state" name="state" placeholder="State (e.g. IL)" maxlength="2" />
+          <input type="text" id="zip" name="zip" placeholder="ZIP Code" />
+        </div>
+
+        <button type="submit" class="submit-btn">Order My Pie</button>
+      </form>
+    </div>
+
+    <div id="orderConfirmation" class="confirmation-panel" style="display:none">
+      <h4>Order Confirmed!</h4>
+      <p>Order ID: <strong id="confirmedOrderId"></strong></p>
+      <p>Estimated delivery: <span id="estimatedDelivery"></span></p>
+      <a href="/track" class="track-link">Track Your Order</a>
+    </div>
+  </div>
+
+  <script src="/static/js/app.js"></script>
+</body>
+
+</html>

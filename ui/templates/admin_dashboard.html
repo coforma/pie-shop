@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pie Shop Admin Dashboard</title>
+  <link rel="stylesheet" href="/static/css/styles.css">
+  <style>
+    /* Dashboard-specific overrides */
+    .status-dot {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-right: 4px;
+    }
+
+    .status-ORDERED {
+      background: #f0ad4e;
+    }
+
+    .status-PICKING {
+      background: #5bc0de;
+    }
+
+    .status-PREPPING {
+      background: #5bc0de;
+    }
+
+    .status-BAKING {
+      background: #f0ad4e;
+    }
+
+    .status-DELIVERING {
+      background: #5cb85c;
+    }
+
+    .status-COMPLETED {
+      background: #5cb85c;
+    }
+
+    .status-ERROR {
+      background: #d9534f;
+    }
+
+    /* Remove focus outlines */
+    *:focus {
+      outline: none;
+    }
+
+    .filter-bar input,
+    .filter-bar select {
+      margin-right: 8px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container admin-container">
+    <h1>Admin Dashboard</h1>
+
+    <div class="stats-row" aria-label="Summary statistics">
+      <div class="stat-card">
+        <h4>Total Orders</h4>
+        <div id="statTotal" class="stat-number">--</div>
+      </div>
+      <div class="stat-card">
+        <h4>Active</h4>
+        <div id="statActive" class="stat-number">--</div>
+      </div>
+      <div class="stat-card">
+        <h4>Completed</h4>
+        <div id="statCompleted" class="stat-number">--</div>
+      </div>
+      <div class="stat-card">
+        <h4>Errors</h4>
+        <div id="statErrors" class="stat-number">--</div>
+      </div>
+    </div>
+
+    <div class="filter-bar">
+      <select id="filterStatus">
+        <option value="">All Statuses</option>
+        <option value="ORDERED">Ordered</option>
+        <option value="PICKING">Picking</option>
+        <option value="PREPPING">Prepping</option>
+        <option value="BAKING">Baking</option>
+        <option value="DELIVERING">Delivering</option>
+        <option value="COMPLETED">Completed</option>
+        <option value="ERROR">Error</option>
+      </select>
+      <select id="filterPieType">
+        <option value="">All Types</option>
+        <option value="apple">Apple</option>
+        <option value="cherry">Cherry</option>
+        <option value="pumpkin">Pumpkin</option>
+        <option value="pecan">Pecan</option>
+        <option value="blueberry">Blueberry</option>
+      </select>
+      <button onclick="loadOrders()" class="refresh-btn">Refresh</button>
+    </div>
+
+    <table class="orders-table">
+      <tr>
+        <td>Order ID</td>
+        <td>Customer</td>
+        <td>Pie Type</td>
+        <td>Status</td>
+        <td>Created</td>
+        <td>Est. Delivery</td>
+        <td>Actions</td>
+      </tr>
+      <tbody id="ordersTableBody">
+        <tr>
+          <td colspan="7">Loading orders...</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div id="orderDetail" class="order-detail-panel" style="display:none">
+      <h4>Order Details</h4>
+      <div id="orderDetailContent"></div>
+
+      <h4>Status History</h4>
+      <div id="orderHistoryContent"></div>
+
+      <button onclick="document.getElementById('orderDetail').style.display='none'">Close</button>
+    </div>
+  </div>
+
+  <script src="/static/js/app.js"></script>
+  <script>
+    loadOrders();
+    setInterval(function () {
+      // Auto-refresh placeholder
+    }, 30000);
+  </script>
+</body>
+
+</html>

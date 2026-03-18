@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://pieuser:piepassword123@postgres:5432/piedb
+      - MONGODB_URL=mongodb://mongodb:27017
+      - FRUIT_PICKER_URL=http://fruit-picker-mock:8081
+      - BAKER_URL=http://baker-mock:8082
+      - DELIVERY_URL=http://delivery-mock:8083
+      - FRUIT_PICKER_API_KEY=fp-dev-key-abc123xyz
+      - BAKER_API_KEY=baker-dev-key-def456uvw
+      - DELIVERY_API_KEY=delivery-dev-key-ghi789rst
+    depends_on:
+      - postgres
+      - mongodb
+      - fruit-picker-mock
+      - baker-mock
+      - delivery-mock
+
+  postgres:
+    image: postgres:15
+    environment:
+      - POSTGRES_USER=pieuser
+      - POSTGRES_PASSWORD=piepassword123
+      - POSTGRES_DB=piedb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./migrations/001_initial_schema.sql:/docker-entrypoint-initdb.d/001_initial_schema.sql
+
+  mongodb:
+    image: mongo:7
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  fruit-picker-mock:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.mock
+    command: uvicorn mocks.fruit_picker_mock:app --host 0.0.0.0 --port 8081
+    ports:
+      - "8081:8081"
+
+  baker-mock:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.mock
+    command: uvicorn mocks.baker_mock:app --host 0.0.0.0 --port 8082
+    ports:
+      - "8082:8082"
+
+  delivery-mock:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.mock
+    command: uvicorn mocks.delivery_mock:app --host 0.0.0.0 --port 8083
+    ports:
+      - "8083:8083"
+
+volumes:
+  postgres_data:
+  mongo_data:
