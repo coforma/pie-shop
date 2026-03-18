@@ -68,23 +68,3 @@ API docs are at `http://localhost:3000/api/docs`.
 ```bash
 pytest tests/unit/ -v
 ```
-
-## Repository Structure
-
-### Main Branch (Template - No Code)
-```
-pie-shop/
-├── .specify/                           # Specification-Driven Development
-│   ├── memory/
-│   │   └── constitution.md            # Project principles and design philosophy
-│   ├── features/
-│   │   └── 001-pie-shop-orchestration.md  # Complete feature specification
-│   ├── IMPLEMENTATION_PROMPT.md        # Generate code in any language
-│   ├── INTERVIEW_GUIDE_SHARED_DRIVE_README.md  # Guide for interviewers
-│   ├── WORKFLOW_PROPOSAL.md           # Complete workflow documentation
-│   └── PROJECT_SUMMARY.md             # Overview and design decisions
-├── .github/                           # Issue and PR templates
-├── .gitignore                         # Prevents interview guides from being committed
-├── AGENTS.md                          # LLM configuration (Coforma standards)
-└── README.md                          # This file
-```
