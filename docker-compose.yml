@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  drupal:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    ports:
+      - "8080:80"
+    environment:
+      DRUPAL_DB_HOST: postgres
+      DRUPAL_DB_NAME: drupal
+      DRUPAL_DB_USER: drupal
+      DRUPAL_DB_PASSWORD: drupal_password
+      MONGO_URI: mongodb://mongo:27017
+    depends_on:
+      - postgres
+      - mongo
+    volumes:
+      - ./src/modules/pie_shop:/var/www/html/web/modules/custom/pie_shop
+
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: drupal
+      POSTGRES_USER: drupal
+      POSTGRES_PASSWORD: drupal_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./migrations:/docker-entrypoint-initdb.d
+
+  mongo:
+    image: mongo:7
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  fruit-picker-mock:
+    image: php:8.2-cli
+    command: php -S 0.0.0.0:8081 /mocks/fruit_picker_mock.php
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./mocks:/mocks
+
+  baker-mock:
+    image: php:8.2-cli
+    command: php -S 0.0.0.0:8082 /mocks/baker_mock.php
+    ports:
+      - "8082:8082"
+    volumes:
+      - ./mocks:/mocks
+
+  delivery-mock:
+    image: php:8.2-cli
+    command: php -S 0.0.0.0:8083 /mocks/delivery_mock.php
+    ports:
+      - "8083:8083"
+    volumes:
+      - ./mocks:/mocks
+
+volumes:
+  postgres_data:
+  mongo_data:

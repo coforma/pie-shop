@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - Pie Shop</title>
+  <link rel="stylesheet" href="/modules/custom/pie_shop/ui/static/css/styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Pie Shop Operations</h1>
+    <h4>Order Management Dashboard</h4>
+
+    <div class="filter-bar">
+      <div aria-label="Filter controls">
+        <select id="filter-status">
+          <option value="">All Statuses</option>
+          <option value="ORDERED">Ordered</option>
+          <option value="PICKING">Picking</option>
+          <option value="PREPPING">Prepping</option>
+          <option value="BAKING">Baking</option>
+          <option value="DELIVERING">Delivering</option>
+          <option value="COMPLETED">Completed</option>
+          <option value="ERROR">Error</option>
+        </select>
+
+        <select id="filter-pie-type">
+          <option value="">All Pies</option>
+          <option value="apple">Apple</option>
+          <option value="cherry">Cherry</option>
+          <option value="pumpkin">Pumpkin</option>
+          <option value="pecan">Pecan</option>
+          <option value="blueberry">Blueberry</option>
+        </select>
+
+        <button onclick="loadOrders()">Refresh</button>
+      </div>
+    </div>
+
+    <table id="orders-table">
+      <tr>
+        <td>Order ID</td>
+        <td>Customer</td>
+        <td>Pie Type</td>
+        <td>Status</td>
+        <td>Created</td>
+        <td>Actions</td>
+      </tr>
+      <tbody id="orders-body">
+        <tr>
+          <td colspan="6">Loading orders...</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div id="order-detail" style="display:none;">
+      <h4>Order Detail</h4>
+      <div id="order-detail-content"></div>
+    </div>
+  </div>
+
+  <script src="/modules/custom/pie_shop/ui/static/js/admin_dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+name: 'Pie Shop'
+type: module
+description: 'Order orchestration system for the Coforma Pie Shop.'
+core_version_requirement: ^10
+package: 'Pie Shop'
+dependencies:
+  - drupal:node
+  - drupal:views
+  - drupal:rest
+  - drupal:serialization
+  - drupal:key

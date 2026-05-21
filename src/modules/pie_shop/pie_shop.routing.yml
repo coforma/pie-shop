@@ -1,0 +1,51 @@
+pie_shop.orders.create:
+  path: '/api/orders'
+  defaults:
+    _controller: '\Drupal\pie_shop\Controller\OrderController::create'
+    _title: 'Create Order'
+  methods: [POST]
+  requirements:
+    _access: 'TRUE'
+
+pie_shop.orders.get:
+  path: '/api/orders/{orderId}'
+  defaults:
+    _controller: '\Drupal\pie_shop\Controller\OrderController::get'
+    _title: 'Get Order'
+  methods: [GET]
+  requirements:
+    _access: 'TRUE'
+
+pie_shop.orders.list:
+  path: '/api/orders'
+  defaults:
+    _controller: '\Drupal\pie_shop\Controller\OrderController::list'
+    _title: 'List Orders'
+  methods: [GET]
+  requirements:
+    _access: 'TRUE'
+
+pie_shop.orders.update:
+  path: '/api/orders/{orderId}'
+  defaults:
+    _controller: '\Drupal\pie_shop\Controller\OrderController::update'
+    _title: 'Update Order'
+  methods: [PATCH]
+  requirements:
+    _access: 'TRUE'
+
+pie_shop.order_form:
+  path: '/order'
+  defaults:
+    _controller: '\Drupal\pie_shop\Controller\UiController::orderForm'
+    _title: 'Place an Order'
+  requirements:
+    _access: 'TRUE'
+
+pie_shop.admin_dashboard:
+  path: '/admin/pie-shop'
+  defaults:
+    _controller: '\Drupal\pie_shop\Controller\UiController::adminDashboard'
+    _title: 'Pie Shop Dashboard'
+  requirements:
+    _access: 'TRUE'

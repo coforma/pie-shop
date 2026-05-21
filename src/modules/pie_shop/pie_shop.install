@@ -1,0 +1,159 @@
+<?php
+
+/**
+ * @file
+ * Pie Shop module hooks and install routines.
+ */
+
+use Drupal\Core\Database\Database;
+
+/**
+ * Implements hook_schema().
+ */
+function pie_shop_schema(): array {
+  $schema['pie_shop_orders'] = [
+    'description' => 'Stores pie orders.',
+    'fields' => [
+      'id' => [
+        'type' => 'varchar',
+        'length' => 36,
+        'not null' => TRUE,
+        'description' => 'UUID primary key.',
+      ],
+      'pie_type' => [
+        'type' => 'varchar',
+        'length' => 50,
+        'not null' => TRUE,
+      ],
+      'customer_name' => [
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ],
+      'customer_email' => [
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ],
+      'customer_phone' => [
+        'type' => 'varchar',
+        'length' => 20,
+        'not null' => FALSE,
+        'default' => '',
+      ],
+      'delivery_street' => [
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ],
+      'delivery_city' => [
+        'type' => 'varchar',
+        'length' => 100,
+        'not null' => TRUE,
+      ],
+      'delivery_state' => [
+        'type' => 'varchar',
+        'length' => 2,
+        'not null' => TRUE,
+      ],
+      'delivery_zip' => [
+        'type' => 'varchar',
+        'length' => 10,
+        'not null' => TRUE,
+      ],
+      'current_state' => [
+        'type' => 'varchar',
+        'length' => 20,
+        'not null' => TRUE,
+        'default' => 'ORDERED',
+      ],
+      'picker_job_id' => [
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+        'default' => '',
+      ],
+      'baker_job_id' => [
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+        'default' => '',
+      ],
+      'delivery_id' => [
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+        'default' => '',
+      ],
+      'estimated_delivery' => [
+        'type' => 'int',
+        'not null' => FALSE,
+        'description' => 'Unix timestamp.',
+      ],
+      'created_at' => [
+        'type' => 'int',
+        'not null' => TRUE,
+      ],
+      'updated_at' => [
+        'type' => 'int',
+        'not null' => TRUE,
+      ],
+    ],
+    'primary key' => ['id'],
+    'indexes' => [
+      'current_state' => ['current_state'],
+      'created_at' => ['created_at'],
+    ],
+  ];
+
+  $schema['pie_shop_state_history'] = [
+    'description' => 'Order state transition history.',
+    'fields' => [
+      'id' => [
+        'type' => 'serial',
+        'not null' => TRUE,
+      ],
+      'order_id' => [
+        'type' => 'varchar',
+        'length' => 36,
+        'not null' => TRUE,
+      ],
+      'from_state' => [
+        'type' => 'varchar',
+        'length' => 20,
+        'not null' => FALSE,
+        'default' => '',
+      ],
+      'to_state' => [
+        'type' => 'varchar',
+        'length' => 20,
+        'not null' => TRUE,
+      ],
+      'timestamp' => [
+        'type' => 'int',
+        'not null' => TRUE,
+      ],
+      'notes' => [
+        'type' => 'text',
+        'not null' => FALSE,
+      ],
+      'error_message' => [
+        'type' => 'text',
+        'not null' => FALSE,
+      ],
+    ],
+    'primary key' => ['id'],
+    'indexes' => [
+      'order_id' => ['order_id'],
+    ],
+  ];
+
+  return $schema;
+}
+
+/**
+ * Implements hook_install().
+ */
+function pie_shop_install(): void {
+  \Drupal::messenger()->addStatus(t('Pie Shop module installed. Run migrations to seed recipe catalog.'));
+}

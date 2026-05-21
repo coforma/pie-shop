@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order a Pie - Coforma Pie Shop</title>
+  <link rel="stylesheet" href="/modules/custom/pie_shop/ui/static/css/styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Coforma Pie Shop</h1>
+    <h4>Place Your Order</h4>
+
+    <div id="order-form-container">
+      <form id="order-form">
+        <div class="form-group">
+          <select name="pieType" id="pieType">
+            <option value="">-- Select a Pie --</option>
+            <option value="apple">Apple Pie</option>
+            <option value="cherry">Cherry Pie</option>
+            <option value="pumpkin">Pumpkin Pie</option>
+            <option value="pecan">Pecan Pie</option>
+            <option value="blueberry">Blueberry Pie</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <input type="text" name="customerName" id="customerName" placeholder="Your Name">
+        </div>
+
+        <div class="form-group">
+          <input type="email" name="customerEmail" id="customerEmail" placeholder="Email Address">
+        </div>
+
+        <div class="form-group">
+          <input type="tel" name="customerPhone" id="customerPhone" placeholder="Phone Number">
+        </div>
+
+        <div class="form-group">
+          <input type="text" name="street" id="street" placeholder="Street Address">
+        </div>
+
+        <div class="form-group">
+          <input type="text" name="city" id="city" placeholder="City">
+        </div>
+
+        <div class="form-group">
+          <input type="text" name="state" id="state" placeholder="State (e.g. IL)" maxlength="2">
+        </div>
+
+        <div class="form-group">
+          <input type="text" name="zip" id="zip" placeholder="ZIP Code">
+        </div>
+
+        <div id="form-error" class="error-message" style="display:none;"></div>
+
+        <button type="submit" class="btn-submit">Order Now</button>
+      </form>
+    </div>
+
+    <div id="order-confirmation" style="display:none;">
+      <h2>Order Placed!</h2>
+      <p>Your order ID is: <strong id="order-id"></strong></p>
+      <p>Estimated delivery: <span id="estimated-delivery"></span></p>
+      <a href="/order/status">Check order status</a>
+    </div>
+  </div>
+
+  <script src="/modules/custom/pie_shop/ui/static/js/order_form.js"></script>
+</body>
+</html>

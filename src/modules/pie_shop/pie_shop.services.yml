@@ -1,0 +1,47 @@
+services:
+  pie_shop.order_service:
+    class: Drupal\pie_shop\Service\OrderService
+    arguments:
+      - '@database'
+      - '@pie_shop.state_machine'
+      - '@pie_shop.fruit_picker_client'
+      - '@pie_shop.baker_client'
+      - '@pie_shop.delivery_client'
+      - '@logger.channel.pie_shop'
+
+  pie_shop.state_machine:
+    class: Drupal\pie_shop\Service\OrderStateMachine
+    arguments:
+      - '@database'
+      - '@logger.channel.pie_shop'
+
+  pie_shop.fruit_picker_client:
+    class: Drupal\pie_shop\Service\FruitPickerClient
+    arguments:
+      - '@http_client'
+      - '@config.factory'
+      - '@logger.channel.pie_shop'
+
+  pie_shop.baker_client:
+    class: Drupal\pie_shop\Service\BakerClient
+    arguments:
+      - '@http_client'
+      - '@config.factory'
+      - '@logger.channel.pie_shop'
+
+  pie_shop.delivery_client:
+    class: Drupal\pie_shop\Service\DeliveryClient
+    arguments:
+      - '@http_client'
+      - '@config.factory'
+      - '@logger.channel.pie_shop'
+
+  pie_shop.recipe_catalog:
+    class: Drupal\pie_shop\Service\RecipeCatalog
+    arguments:
+      - '@config.factory'
+      - '@logger.channel.pie_shop'
+
+  logger.channel.pie_shop:
+    parent: logger.channel_base
+    arguments: ['pie_shop']
