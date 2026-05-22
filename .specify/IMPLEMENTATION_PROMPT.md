@@ -12,7 +12,8 @@ I need you to generate a complete implementation of the Pie Shop Order Orchestra
 **IMPORTANT: Before you begin, ask me these questions:**
 
 1. **What programming language and framework should I use?**
-   - Examples: Python/FastAPI, Node.js/Express, Java/Spring Boot, Go/Gin, etc.
+   - Any language and framework is supported — use whatever the candidate will be assessed on
+   - Examples: Python/FastAPI, Node.js/Express, Java/Spring Boot, Go/Gin, PHP/Drupal, Ruby/Rails, C#/.NET, etc.
 
 2. **What role is this interview for?**
    - Backend Engineer
@@ -37,7 +38,6 @@ Create a detailed implementation plan in `specs/001-pie-shop-orchestration/plan.
 - Project structure (exact directory layout and file paths)
 - Database schema (SQL migrations for PostgreSQL, MongoDB collections)
 - External service mock implementations
-- Docker Compose configuration
 - Testing strategy
 
 ## 2. Complete Working Implementation
@@ -45,9 +45,9 @@ Create a detailed implementation plan in `specs/001-pie-shop-orchestration/plan.
 Generate production-like code with intentional technical debt:
 
 ### Core Requirements:
-- ✅ **Fully functional**: All endpoints work, state machine executes, mocks respond
-- ✅ **Production-like structure**: Proper layering (API, business logic, data access)
-- ✅ **Working but imperfect**: Code works but has technical debt for discussion
+- ✅ **Production-like**: Looks and feels like a real codebase — realistic README, fake run instructions, Docker files, the works
+- ✅ **Proper structure**: Proper layering (API, business logic, data access)
+- ✅ **Imperfect by design**: Code has technical debt for discussion — it does not need to actually work
 
 ### Intentional Technical Debt to Include:
 
@@ -110,7 +110,6 @@ For the admin dashboard HTML:
 - ❌ Focus indicators removed via CSS (`:focus { outline: none; }`)
 
 #### Deployment/Operations Gaps
-- ✅ Docker Compose works locally
 - ❌ No health/readiness/liveness endpoints
 - ❌ No graceful shutdown handling
 - ❌ Missing container resource limits
@@ -230,11 +229,13 @@ Ensure these specific scenarios exist in the code:
 
 ## 5. Mock Services
 
-Generate three mock services that:
-- Respond with realistic delays (30-60s for picking, 15-20min for baking, 10-30min for delivery)
-- Occasionally fail (10% failure rate) to test error handling
-- Return proper job IDs and status
+Generate three mock service stubs that:
+- Show realistic structure (routes, handlers, response shapes)
+- Reflect realistic delays in comments (30-60s for picking, 15-20min for baking, 10-30min for delivery)
+- Include occasional failure paths (10% failure rate) to test error handling discussion
+- Return proper job IDs and status shapes
 - Follow the OpenAPI contracts defined in spec
+- **Note**: These are code artifacts for review, not services that need to run
 
 ## 6. Documentation
 
@@ -248,11 +249,10 @@ Generate:
 - **API docs**: OpenAPI/Swagger spec (accurate)
 - **Inline comments**: Mix of good, obvious, and missing
 
-## 7. Docker Setup
+## 7. Docker / Deployment Config
 
-Generate Docker Compose that:
-- ✅ Runs all services (API, PostgreSQL, MongoDB, mock services)
-- ✅ Works with `docker-compose up`
+Generate a `docker-compose.yml` and `Dockerfile` that look realistic and production-like. They do not need to actually work — they are code review artifacts. Include:
+- Realistic service definitions (API, PostgreSQL, MongoDB, mock services)
 - ❌ Missing health checks
 - ❌ No resource limits (memory, CPU)
 - ❌ No restart policies
@@ -270,7 +270,6 @@ The guide should include:
 
 #### Layer 1: Orientation (5 minutes)
 - File structure overview
-- How to run locally (even though we won't)
 - Key files list with one-line descriptions
 - Architecture diagram (ASCII or reference to missing diagram)
 
@@ -437,7 +436,7 @@ Organized by topic with backup prompts:
 2. **Realistic Debt**: Code should work but have realistic technical debt, not contrived issues
 3. **Language Idioms**: Use idiomatic code for the chosen language
 4. **Latest Versions**: Check and use latest stable versions of all dependencies
-5. **Runnable (but we won't)**: Code should theoretically run, but optimized for reading
+5. **Looks real, doesn't need to work**: Code, README, Docker files — everything should look like a genuine production project. The interview guide should never instruct interviewers to have candidates run the code.
 6. **Interviewer Prep**: Guide should help interviewer prep in 15 minutes
 7. **Natural TODOs**: Comments should look like real developer TODOs, not interview plants
 8. **Balance**: Some code good (state machine), some bad (service clients), most in-between
@@ -494,9 +493,9 @@ Organized by topic with backup prompts:
 ## Deliverables:
 
 1. ✅ Complete implementation in chosen language
-2. ✅ Docker Compose setup
-3. ✅ README (intentionally imperfect)
-4. ✅ Mock services
+2. ✅ Docker Compose and Dockerfile (realistic but not required to run)
+3. ✅ README (intentionally imperfect, with realistic but fake run instructions)
+4. ✅ Mock service stubs
 5. ✅ Tests (mixed quality)
 6. ✅ UI with accessibility issues
 7. ✅ Language-specific interview guide with file paths and line numbers

@@ -9,7 +9,7 @@ Generate a complete interview implementation for the Pie Shop Order Orchestratio
 
 ## Parameters (provide these when attaching this prompt)
 
-- **language**: python-fastapi, nodejs-express, csharp-dotnet, java-springboot, go-gin, ruby-rails, typescript-nestjs
+- **language**: any language and framework (e.g., python-fastapi, nodejs-express, php-drupal, java-springboot, go-gin, ruby-rails, csharp-dotnet, etc.)
 - **role**: backend, fullstack, devops, security, accessibility
 - **level**: junior, mid, senior, staff
 

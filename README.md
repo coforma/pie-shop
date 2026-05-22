@@ -2,7 +2,31 @@
 
 A language-agnostic specification for conducting technical interviews through code review of a realistic distributed system.
 
-## What Is This?
+## Quickstart
+
+This tool generates a realistic-looking codebase in any language for use as a live code review interview. Candidates review the code and discuss what they find — no running required.
+
+**1. Generate an implementation** using your AI coding tool:
+
+| Tool | Command |
+|------|---------|
+| **OpenCode** | `/generate-interview python-fastapi backend senior` |
+| **Claude Code** | `/project:generate-interview python-fastapi backend senior` |
+| **Cursor** | `/generate-interview python-fastapi backend senior` |
+| **GitHub Copilot** | Attach `.github/prompts/generate-interview.prompt.md` |
+| **Windsurf** | `@generate-interview` then describe parameters |
+
+Parameters: `language` (any language/framework), `role` (backend, fullstack, devops, security, accessibility), `level` (junior, mid, senior, staff)
+
+**2. Generate an interview guide** — ask your AI agent after the code is generated. Save it to the company shared drive. Never commit it.
+
+**3. Share the branch URL with the candidate** 1-2 days before the interview so they can review the code ahead of time.
+
+**4. Conduct the interview** — use the guide to walk through the code together (60 min).
+
+---
+
+
 
 The Pie Shop is a deliberately designed interview project featuring a fictional bakery that orchestrates pie orders through robot services:
 
@@ -58,36 +82,6 @@ pie-shop/  (on interview/python-backend-senior)
 ```
 
 **Note**: Interview guides (`INTERVIEW_GUIDE_PYTHON.md`, etc.) are **never committed**. They're stored in company shared drive only.
-
-## Quick Start - Generate an Interview
-
-Use the built-in slash commands with your preferred AI coding tool:
-
-| Tool | Command |
-|------|---------|
-| **OpenCode** | `/generate-interview python-fastapi backend senior` |
-| **Claude Code** | `/project:generate-interview python-fastapi backend senior` |
-| **Cursor** | `/generate-interview python-fastapi backend senior` |
-| **GitHub Copilot** | Attach `.github/prompts/generate-interview.prompt.md` |
-| **Windsurf** | `@generate-interview` then describe parameters |
-
-**Parameters:**
-- `language`: python-fastapi, nodejs-express, csharp-dotnet, java-springboot, go-gin, ruby-rails, typescript-nestjs
-- `role`: backend, fullstack, devops, security, accessibility
-- `level`: junior, mid, senior, staff
-
-The command will:
-1. Create an interview branch (`interview/<language>-<role>-<level>`)
-2. Read specifications from `.specify/`
-3. Generate implementation with intentional technical debt
-4. Prompt you to review, commit, and push
-
-**After generation:**
-- Review code for any accidental interview hints
-- Ask the AI to generate an interview guide (save to shared drive, never commit)
-- Push branch and share URL with candidate
-
----
 
 ## Detailed Workflow - Running an Interview
 

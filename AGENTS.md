@@ -222,7 +222,7 @@ This repository includes slash commands for multiple AI coding tools. Use these 
 | **Windsurf** | `@generate-interview` then describe parameters |
 
 **Parameters:**
-- `language`: python-fastapi, nodejs-express, csharp-dotnet, java-springboot, go-gin, ruby-rails, typescript-nestjs
+- `language`: any language and framework — examples: python-fastapi, nodejs-express, csharp-dotnet, java-springboot, go-gin, ruby-rails, typescript-nestjs, php-drupal, etc.
 - `role`: backend, fullstack, devops, security, accessibility
 - `level`: junior, mid, senior, staff
 
